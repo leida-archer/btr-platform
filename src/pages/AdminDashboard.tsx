@@ -102,7 +102,6 @@ function HeatmapView({ posts }: { posts: Post[] }) {
 
 /** Find the next upcoming campaign (soonest future date). */
 function getNextCampaign(campaigns: Campaign[]): Campaign | null {
-  const now = new Date();
   return campaigns
     .filter((c) => {
       try { return isFuture(parseISO(c.date)); } catch { return false; }
