@@ -23,6 +23,8 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npx vite build --base /btr-platform/
+        env:
+          VITE_STATIC_PREVIEW: "true"
       - name: Fix absolute asset paths for GitHub Pages subpath
         run: |
           cd dist

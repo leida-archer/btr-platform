@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { DataProvider } from "./context/DataContext";
 import LandingPage from "./pages/LandingPage";
@@ -13,6 +13,8 @@ import AdminAssets from "./pages/AdminAssets";
 import AdminCampaigns from "./pages/AdminCampaigns";
 import AdminSettings from "./pages/AdminSettings";
 
+const STATIC_PREVIEW = import.meta.env.VITE_STATIC_PREVIEW === "true";
+
 function ProtectedRoute({
   authenticated,
   loading,
@@ -22,6 +24,7 @@ function ProtectedRoute({
   loading: boolean;
   children: React.ReactNode;
 }) {
+  if (STATIC_PREVIEW) return <>{children}</>;
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-ink">
@@ -34,11 +37,13 @@ function ProtectedRoute({
 
 export default function App() {
   const { authenticated, loading, login, logout, role } = useAuth();
+  const effectiveRole = STATIC_PREVIEW ? "admin" : role;
+  const Router = STATIC_PREVIEW ? HashRouter : BrowserRouter;
 
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={STATIC_PREVIEW ? <Navigate to="/admin" replace /> : <LandingPage />} />
         <Route path="/login" element={<LoginPage onLogin={login} authenticated={authenticated} />} />
         <Route path="/setup" element={<SetupPage />} />
 
@@ -47,7 +52,7 @@ export default function App() {
           element={
             <ProtectedRoute authenticated={authenticated} loading={loading}>
               <DataProvider>
-                <AdminShell onLogout={logout} role={role} />
+                <AdminShell onLogout={logout} role={effectiveRole} />
               </DataProvider>
             </ProtectedRoute>
           }
@@ -58,11 +63,11 @@ export default function App() {
           <Route path="assets" element={<AdminAssets />} />
           <Route path="events" element={<AdminCampaigns />} />
           <Route path="calculator" element={<AdminCalculator />} />
-          <Route path="settings" element={role === "admin" ? <AdminSettings /> : <Navigate to="/admin" replace />} />
+          <Route path="settings" element={effectiveRole === "admin" ? <AdminSettings /> : <Navigate to="/admin" replace />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
