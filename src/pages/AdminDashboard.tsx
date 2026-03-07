@@ -100,13 +100,23 @@ function HeatmapView({ posts }: { posts: Post[] }) {
   );
 }
 
+/** Parse a date string — handles ISO ("2026-05-01") and display ("May 1, 2026") formats. */
+function parseDate(s: string): Date | null {
+  const iso = parseISO(s);
+  if (!isNaN(iso.getTime())) return iso;
+  const fallback = new Date(s);
+  if (!isNaN(fallback.getTime())) return fallback;
+  return null;
+}
+
 /** Find the next upcoming campaign (soonest future date). */
 function getNextCampaign(campaigns: Campaign[]): Campaign | null {
   return campaigns
     .filter((c) => {
-      try { return isFuture(parseISO(c.date)); } catch { return false; }
+      const d = parseDate(c.date);
+      return d ? isFuture(d) : false;
     })
-    .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())[0] ?? null;
+    .sort((a, b) => (parseDate(a.date)?.getTime() ?? 0) - (parseDate(b.date)?.getTime() ?? 0))[0] ?? null;
 }
 
 /** Get posts scheduled within the next 7 days. */
@@ -153,7 +163,7 @@ export default function AdminDashboard() {
   const { campaigns, posts } = useData();
 
   const nextCampaign = useMemo(() => getNextCampaign(campaigns), [campaigns]);
-  const eventDate = useMemo(() => (nextCampaign ? parseISO(nextCampaign.date) : null), [nextCampaign]);
+  const eventDate = useMemo(() => (nextCampaign ? parseDate(nextCampaign.date) : null), [nextCampaign]);
   const cd = useCountdown(eventDate);
 
   const campaignPosts = useMemo(
@@ -196,7 +206,7 @@ export default function AdminDashboard() {
                 <p className="text-xs font-heading font-semibold uppercase tracking-wider text-foreground-muted mb-1">Next Event</p>
                 <h2 className="font-heading text-xl font-bold">{nextCampaign.name}</h2>
                 <p className="text-sm text-foreground-muted mt-1">
-                  {format(parseISO(nextCampaign.date), "MMMM d, yyyy")}
+                  {eventDate ? format(eventDate, "MMMM d, yyyy") : nextCampaign.date}
                   {nextCampaign.venue !== "TBD" ? ` @ ${nextCampaign.venue}` : ""}
                   {nextCampaign.city ? ` — ${nextCampaign.city}` : ""}
                 </p>
