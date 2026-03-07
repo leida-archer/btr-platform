@@ -23,6 +23,13 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npx vite build --base /btr-platform/
+      - name: Fix absolute asset paths for GitHub Pages subpath
+        run: |
+          cd dist
+          # Rewrite absolute /logos/, /images/, /icons/, /fonts/ refs in JS bundles
+          find . -name '*.js' -o -name '*.css' -o -name '*.html' | xargs sed -i 's|"/logos/|"/btr-platform/logos/|g; s|"/images/|"/btr-platform/images/|g; s|"/icons/|"/btr-platform/icons/|g; s|"/fonts/|"/btr-platform/fonts/|g'
+          # Copy index.html as 404.html for SPA routing
+          cp index.html 404.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
