@@ -263,10 +263,11 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
         <h1 className="font-heading text-2xl font-bold">Ticket Calculator</h1>
         <div className="flex items-center gap-3 flex-wrap">
           <Dropdown
-            label="Event"
+            label={eventNames.length === 0 ? "No events" : "Event"}
             options={eventNames.map((k) => ({ value: k, label: k }))}
             value={selectedEvent}
             onChange={loadEvent}
+            disabled={eventNames.length === 0}
           />
           <button onClick={exportPDF} className="btn btn--gradient btn--sm flex items-center gap-2">
             <Download className="w-4 h-4" /> Export PDF

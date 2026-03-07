@@ -9,9 +9,10 @@ interface DropdownProps {
   onChange: (value: string) => void;
   className?: string;
   fullWidth?: boolean;
+  disabled?: boolean;
 }
 
-export default function Dropdown({ label, options, value, onChange, className = "", fullWidth }: DropdownProps) {
+export default function Dropdown({ label, options, value, onChange, className = "", fullWidth, disabled }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -30,6 +31,7 @@ export default function Dropdown({ label, options, value, onChange, className = 
   }, [open]);
 
   const handleToggle = () => {
+    if (disabled) return;
     if (!open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
@@ -43,9 +45,9 @@ export default function Dropdown({ label, options, value, onChange, className = 
     <div ref={btnRef} className={`relative ${className}`}>
       <button
         onClick={handleToggle}
-        className={`flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 transition-colors ${
-          fullWidth ? "w-full justify-between" : "shrink-0"
-        }`}
+        className={`flex items-center gap-1 text-sm border border-border rounded-lg px-3 py-2 transition-colors ${
+          disabled ? "text-foreground-muted/50 cursor-not-allowed" : "text-foreground-muted hover:text-foreground"
+        } ${fullWidth ? "w-full justify-between" : "shrink-0"}`}
       >
         <span className="truncate">{selected?.label ?? label}</span>
         <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
