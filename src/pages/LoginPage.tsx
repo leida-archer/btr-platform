@@ -7,7 +7,7 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onLogin, authenticated }: LoginPageProps) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export default function LoginPage({ onLogin, authenticated }: LoginPageProps) {
     setLoading(true);
     setError("");
 
-    const success = await onLogin(username, password);
+    const success = await onLogin(email, password);
     if (!success) {
       setError("Invalid credentials");
       setTimeout(() => setError(""), 3000);
@@ -82,10 +82,10 @@ export default function LoginPage({ onLogin, authenticated }: LoginPageProps) {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 16 }}>
             <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-surface border border-border rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
             />
           </div>

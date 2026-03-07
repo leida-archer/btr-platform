@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Campaigns (Events) ──
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  date        String
+  venue       String   @default("TBD")
+  city        String
+  status      String   @default("planning") // active | planning | upcoming | completed
+  headcount   Int      @default(100)
+  budget      Float    @default(0)
+  ticketsSold Int      @default(0)
+  ticketGoal  Int      @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posts  Post[]
+  assets Asset[]
+}
+
+// ── Posts (Content Pipeline) ──
+model Post {
+  id             String   @id @default(cuid())
+  title          String
+  platform       String
+  postType       String   @default("reel")
+  status         String   @default("idea") // idea | allocated | editing | approved | posted
+  priority       String   @default("medium")
+  assignee       String
+  event          String   @default("")
+  scheduledDate  String   @default("")
+  scheduledTime  String   @default("")
+  caption        String   @default("")
+  notes          String   @default("")
+  tags           String[] @default([])
+  linkedAssetIds String[] @default([])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+}
+
+// ── Assets (Media Library) ──
+model Asset {
+  id        String   @id @default(cuid())
+  name      String
+  type      String // image | video | document | audio
+  size      String   @default("")
+  url       String   @default("") // Vercel Blob URL
+  date      String   @default("")
+  tags      String[] @default([])
+  thumbnail String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+}
+
+// ── Calculator Events ──
+model CalculatorEvent {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  eventDate String
+  startTime String
+  endTime   String
+  artists   Json     @default("[]") // Array of { name, fee, travel }
+  venueFee  Float    @default(0)
+  barMin    Float    @default(0)
+  audioHW   Float    @default(0)
+  visualHW  Float    @default(0)
+  showVenueStaff Boolean @default(false)
+  venueStaff     Json    @default("[]") // Array of { role, rate, count }
+  showProdStaff  Boolean @default(false)
+  prodStaff      Json    @default("[]") // Array of { role, rate, count }
+  paidAds    Float @default(0)
+  contentGen Float @default(0)
+  headcount  Int   @default(100)
+  margin     Float @default(20)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ── Team Members ──
+model TeamMember {
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  passwordHash String? // null until user sets password via invite link
+  role         String  @default("viewer") // admin | editor | viewer
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

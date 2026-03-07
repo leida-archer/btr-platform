@@ -3,18 +3,20 @@ import { useState, useEffect, useCallback } from "react";
 interface AuthState {
   authenticated: boolean;
   loading: boolean;
+  role: string;
+  name: string;
 }
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({ authenticated: false, loading: true });
+  const [state, setState] = useState<AuthState>({ authenticated: false, loading: true, role: "", name: "" });
 
   const verify = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/verify", { credentials: "include" });
       const data = await res.json();
-      setState({ authenticated: data.authenticated === true, loading: false });
+      setState({ authenticated: data.authenticated === true, loading: false, role: data.role ?? "", name: data.name ?? "" });
     } catch {
-      setState({ authenticated: false, loading: false });
+      setState({ authenticated: false, loading: false, role: "", name: "" });
     }
   }, []);
 
@@ -22,17 +24,17 @@ export function useAuth() {
     verify();
   }, [verify]);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (data.authenticated) {
-        setState({ authenticated: true, loading: false });
+        setState({ authenticated: true, loading: false, role: data.role ?? "", name: data.name ?? "" });
         return true;
       }
       return false;
@@ -45,7 +47,7 @@ export function useAuth() {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } finally {
-      setState({ authenticated: false, loading: false });
+      setState({ authenticated: false, loading: false, role: "", name: "" });
     }
   };
 

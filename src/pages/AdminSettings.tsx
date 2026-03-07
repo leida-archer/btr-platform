@@ -1,18 +1,8 @@
 import { useState } from "react";
 import { Plus, X, Shield, ShieldAlert, Eye } from "lucide-react";
+import Dropdown from "../components/Dropdown";
+import { useData } from "../context/DataContext";
 
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "editor" | "viewer";
-}
-
-const DEMO_TEAM: TeamMember[] = [
-  { id: "1", name: "Archer", email: "archer@beyondtherhythm.com", role: "admin" },
-  { id: "2", name: "Jordan", email: "jordan@beyondtherhythm.com", role: "editor" },
-  { id: "3", name: "Riley", email: "riley@beyondtherhythm.com", role: "viewer" },
-];
 
 const roleConfig = {
   admin: { label: "Admin", icon: ShieldAlert, color: "#D6246E", bg: "rgba(214,36,110,0.15)" },
@@ -21,26 +11,26 @@ const roleConfig = {
 };
 
 export default function AdminSettings() {
-  const [team, setTeam] = useState(DEMO_TEAM);
+  const { teamMembers, addTeamMember, removeTeamMember } = useData();
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("editor");
 
-  const adminCount = team.filter((m) => m.role === "admin").length;
+  const adminCount = teamMembers.filter((m) => m.role === "admin").length;
 
   const handleRemove = (id: string) => {
-    const member = team.find((m) => m.id === id);
+    const member = teamMembers.find((m) => m.id === id);
     if (member?.role === "admin" && adminCount <= 1) {
       alert("Cannot remove the last admin");
       return;
     }
-    setTeam(team.filter((m) => m.id !== id));
+    removeTeamMember(id);
   };
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
-    setTeam([...team, { id: Date.now().toString(), name: inviteName, email: inviteEmail, role: inviteRole }]);
+    addTeamMember({ name: inviteName, email: inviteEmail, role: inviteRole });
     setInviteName("");
     setInviteEmail("");
     setShowInvite(false);
@@ -84,14 +74,15 @@ export default function AdminSettings() {
               />
             </div>
             <div className="flex items-center gap-4 flex-wrap">
-              <select
+              <Dropdown
+                label="Role"
+                options={[
+                  { value: "editor", label: "Editor" },
+                  { value: "viewer", label: "Viewer" },
+                ]}
                 value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value as "editor" | "viewer")}
-                className="bg-surface border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-magenta"
-              >
-                <option value="editor">Editor</option>
-                <option value="viewer">Viewer</option>
-              </select>
+                onChange={(v) => setInviteRole(v as "editor" | "viewer")}
+              />
               <button type="submit" className="bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 Send Invite
               </button>
@@ -103,7 +94,7 @@ export default function AdminSettings() {
         )}
 
         <div className="space-y-2">
-          {team.map((m) => {
+          {teamMembers.map((m) => {
             const rc = roleConfig[m.role];
             const RoleIcon = rc.icon;
             const isLastAdmin = m.role === "admin" && adminCount <= 1;
