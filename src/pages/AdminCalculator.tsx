@@ -354,8 +354,8 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
             <div className="space-y-3">
               <CostRow label="Expected Headcount"><input type="number" value={headcount} onChange={(e) => setHeadcount(+e.target.value)} className={inputClass} /></CostRow>
               <CostRow label="Profit Margin">
-                <input type="number" min={0} max={100} value={margin} onChange={(e) => setMargin(+e.target.value)} className={inputClass} />
                 <span className="text-foreground-muted text-sm">%</span>
+                <input type="number" min={0} max={100} value={margin} onChange={(e) => setMargin(+e.target.value)} className={inputClass} />
               </CostRow>
             </div>
           </div>
