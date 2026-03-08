@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `btr_session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${8 * 60 * 60}`
     );
 
-    return res.status(200).json({ authenticated: true, role: member.role, name: member.name });
+    return res.status(200).json({ authenticated: true, role: member.role, name: member.name, email: member.email });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Internal server error" });

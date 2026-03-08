@@ -4,6 +4,7 @@ import Dropdown from "../components/Dropdown";
 import EditPostModal, { type PostData, type AssetOption } from "../components/EditPostModal";
 import EditAssetModal from "../components/EditAssetModal";
 import { useData } from "../context/DataContext";
+import { useIsViewer } from "../context/RoleContext";
 import type { Campaign, Post, PostStatus, CampaignStatus, Asset, AssetType } from "../types/data";
 
 const statusConfig = {
@@ -140,6 +141,7 @@ function CityInput({ value, onChange, className }: { value: string; onChange: (v
 }
 
 export default function AdminCampaigns() {
+  const isViewer = useIsViewer();
   const { campaigns, assets, teamMembers, addCampaign, updateCampaign, deleteCampaign, updatePost, deletePost, updateAsset, deleteAsset, getPostsByCampaign, getAssetsByCampaign } = useData();
 
   const [view, setView] = useState<"list" | "detail">("list");
@@ -182,7 +184,7 @@ export default function AdminCampaigns() {
   );
 
   const assigneeOptions = useMemo(
-    () => teamMembers.map((m) => ({ value: m.name, label: m.name })),
+    () => teamMembers.filter((m) => m.role !== "viewer").map((m) => ({ value: m.name, label: m.name })),
     [teamMembers]
   );
 
@@ -415,9 +417,11 @@ export default function AdminCampaigns() {
             <ChevronLeft className="w-4 h-4" /> Campaigns
           </button>
           <div className="flex-1" />
-          <button onClick={() => openEditModal(active)} className="flex items-center gap-2 text-sm text-foreground-muted hover:text-magenta border border-border rounded-lg px-3 py-1.5 transition-colors">
-            <Pencil className="w-3.5 h-3.5" /> Edit
-          </button>
+          {!isViewer && (
+            <button onClick={() => openEditModal(active)} className="flex items-center gap-2 text-sm text-foreground-muted hover:text-magenta border border-border rounded-lg px-3 py-1.5 transition-colors">
+              <Pencil className="w-3.5 h-3.5" /> Edit
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 mb-6">
@@ -535,7 +539,7 @@ export default function AdminCampaigns() {
         </div>
 
         {/* Modals */}
-        {editingId && renderCampaignEditModal()}
+        {editingId && !isViewer && renderCampaignEditModal()}
         {editingPost && (
           <EditPostModal
             post={{
@@ -552,6 +556,7 @@ export default function AdminCampaigns() {
             availableAssets={availableAssets}
             eventOptions={eventOptions}
             assigneeOptions={assigneeOptions}
+            readOnly={isViewer}
           />
         )}
         {editingAsset && (
@@ -561,6 +566,7 @@ export default function AdminCampaigns() {
             onDelete={handleDeleteAsset}
             onClose={() => setEditingAsset(null)}
             onReplace={handleReplaceAsset}
+            readOnly={isViewer}
           />
         )}
       </div>
@@ -572,10 +578,12 @@ export default function AdminCampaigns() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="font-heading text-2xl font-bold">Campaigns</h1>
-        <button onClick={openNewCampaign}
-          className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0">
-          <Plus className="w-4 h-4" /> New Campaign
-        </button>
+        {!isViewer && (
+          <button onClick={openNewCampaign}
+            className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0">
+            <Plus className="w-4 h-4" /> New Campaign
+          </button>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -620,8 +628,8 @@ export default function AdminCampaigns() {
         })}
       </div>
 
-      {editingId && renderCampaignEditModal()}
-      {showNewCampaign && renderNewCampaignModal()}
+      {editingId && !isViewer && renderCampaignEditModal()}
+      {showNewCampaign && !isViewer && renderNewCampaignModal()}
     </div>
   );
 }

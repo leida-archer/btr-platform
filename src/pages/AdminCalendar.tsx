@@ -15,6 +15,7 @@ import {
   parseISO,
 } from "date-fns";
 import { useData } from "../context/DataContext";
+import { useIsViewer } from "../context/RoleContext";
 import EditPostModal, { type PostData, type AssetOption } from "../components/EditPostModal";
 import type { Post, PostStatus } from "../types/data";
 
@@ -53,6 +54,7 @@ const STATUS_OPTIONS = Object.entries(STATUS_COLORS).map(([key, color]) => ({
 }));
 
 export default function AdminCalendar() {
+  const isViewer = useIsViewer();
   const { posts, assets, campaigns, teamMembers, updatePost, deletePost } = useData();
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -69,7 +71,7 @@ export default function AdminCalendar() {
   );
 
   const assigneeOptions = useMemo(
-    () => teamMembers.map((m) => ({ value: m.name, label: m.name })),
+    () => teamMembers.filter((m) => m.role !== "viewer").map((m) => ({ value: m.name, label: m.name })),
     [teamMembers]
   );
 
@@ -270,6 +272,7 @@ export default function AdminCalendar() {
           availableAssets={availableAssets}
           eventOptions={eventOptions}
           assigneeOptions={assigneeOptions}
+          readOnly={isViewer}
         />
       )}
     </div>

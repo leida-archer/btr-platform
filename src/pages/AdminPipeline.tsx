@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { GripVertical, Plus } from "lucide-react";
 import EditPostModal, { type PostData, type AssetOption, emptyPost } from "../components/EditPostModal";
 import { useData } from "../context/DataContext";
+import { useIsViewer } from "../context/RoleContext";
 import type { Post, PostStatus } from "../types/data";
 
 type Stage = PostStatus;
@@ -30,6 +31,7 @@ const priorityColors: Record<string, string> = {
 };
 
 export default function AdminPipeline() {
+  const isViewer = useIsViewer();
   const { posts, assets, campaigns, teamMembers, updatePost, addPost, deletePost } = useData();
 
   const [dragItem, setDragItem] = useState<{ post: Post; from: Stage } | null>(null);
@@ -56,7 +58,7 @@ export default function AdminPipeline() {
   );
 
   const assigneeOptions = useMemo(
-    () => teamMembers.map((m) => ({ value: m.name, label: m.name })),
+    () => teamMembers.filter((m) => m.role !== "viewer").map((m) => ({ value: m.name, label: m.name })),
     [teamMembers]
   );
 
@@ -104,12 +106,14 @@ export default function AdminPipeline() {
         <h1 className="font-heading text-2xl font-bold">Content Pipeline</h1>
         <div className="flex items-center gap-3">
           <p className="text-sm text-foreground-muted">{totalPosts} posts across {STAGE_CONFIG.length} stages</p>
-          <button
-            onClick={() => setShowNew(true)}
-            className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
-          >
-            <Plus className="w-4 h-4" /> New Post
-          </button>
+          {!isViewer && (
+            <button
+              onClick={() => setShowNew(true)}
+              className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
+            >
+              <Plus className="w-4 h-4" /> New Post
+            </button>
+          )}
         </div>
       </div>
 
@@ -132,10 +136,10 @@ export default function AdminPipeline() {
               {pipeline[key].map((item) => (
                 <div
                   key={item.id}
-                  draggable
-                  onDragStart={() => handleDragStart(item, key)}
+                  draggable={!isViewer}
+                  onDragStart={() => !isViewer && handleDragStart(item, key)}
                   onClick={() => setEditing(item)}
-                  className="bg-surface border border-border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-magenta/30 transition-colors"
+                  className={`bg-surface border border-border rounded-lg p-3 hover:border-magenta/30 transition-colors ${isViewer ? "cursor-pointer" : "cursor-grab active:cursor-grabbing"}`}
                 >
                   <div className="flex items-start gap-2">
                     <GripVertical className="w-3 h-3 text-foreground-muted/40 mt-0.5 shrink-0" />
@@ -177,10 +181,11 @@ export default function AdminPipeline() {
           availableAssets={availableAssets}
           eventOptions={eventOptions}
           assigneeOptions={assigneeOptions}
+          readOnly={isViewer}
         />
       )}
 
-      {showNew && (
+      {showNew && !isViewer && (
         <EditPostModal
           post={emptyPost()}
           statusOptions={STATUS_OPTIONS}

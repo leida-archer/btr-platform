@@ -61,7 +61,7 @@ export default function LoginPage({ onLogin, authenticated }: LoginPageProps) {
       >
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <img
-            src="/logos/8c-option-a-orange-waveform.svg"
+            src="/logos/2e-ripple-on-dark.svg"
             alt="Beyond the Rhythm"
             style={{ width: 180, margin: "0 auto 24px" }}
           />

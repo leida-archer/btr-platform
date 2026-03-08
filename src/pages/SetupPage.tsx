@@ -21,7 +21,7 @@ export default function SetupPage() {
         if (data.valid) {
           setName(data.name);
           setEmail(data.email);
-          setStatus(data.hasPassword ? "done" : "ready");
+          setStatus(data.hasPassword && data.purpose !== "reset" ? "done" : "ready");
         } else {
           setStatus("invalid");
         }
@@ -121,7 +121,7 @@ export default function SetupPage() {
       <div style={containerStyle}>
         <div style={bgStyle} />
         <div style={{ ...cardStyle, textAlign: "center" }}>
-          <img src="/logos/8c-option-a-orange-waveform.svg" alt="Beyond the Rhythm" style={{ width: 180, margin: "0 auto 24px" }} />
+          <img src="/logos/2e-ripple-on-dark.svg" alt="Beyond the Rhythm" style={{ width: 180, margin: "0 auto 24px" }} />
           <p style={{ color: "var(--color-mist)", fontSize: "1.1rem", marginBottom: 8, fontFamily: "var(--font-heading)" }}>
             You're all set, {name}!
           </p>
@@ -141,7 +141,7 @@ export default function SetupPage() {
       <div style={bgStyle} />
       <div style={cardStyle}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <img src="/logos/8c-option-a-orange-waveform.svg" alt="Beyond the Rhythm" style={{ width: 180, margin: "0 auto 24px" }} />
+          <img src="/logos/2e-ripple-on-dark.svg" alt="Beyond the Rhythm" style={{ width: 180, margin: "0 auto 24px" }} />
           <p style={{ fontFamily: "var(--font-heading)", fontSize: "0.85rem", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--color-slate)" }}>
             Set Up Your Account
           </p>

@@ -17,6 +17,7 @@ interface EditAssetModalProps {
   onDelete: () => void;
   onClose: () => void;
   onReplace?: (file: File) => void;
+  readOnly?: boolean;
 }
 
 const typeConfig = {
@@ -35,7 +36,7 @@ const TYPE_OPTIONS = [
 
 const inputClass = "w-full bg-ink/50 border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta";
 
-export default function EditAssetModal({ asset, onSave, onDelete, onClose, onReplace }: EditAssetModalProps) {
+export default function EditAssetModal({ asset, onSave, onDelete, onClose, onReplace, readOnly }: EditAssetModalProps) {
   const [name, setName] = useState(asset.name);
   const [type, setType] = useState(asset.type);
   const [tags, setTags] = useState(asset.tags ?? []);
@@ -105,14 +106,14 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
           {/* Name */}
           <div>
             <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} disabled={readOnly} />
           </div>
 
           {/* Type + Meta */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Type</label>
-              <Dropdown label="Type" options={TYPE_OPTIONS} value={type} onChange={(v) => setType(v as AssetData["type"])} fullWidth />
+              <Dropdown label="Type" options={TYPE_OPTIONS} value={type} onChange={(v) => setType(v as AssetData["type"])} fullWidth disabled={readOnly} />
             </div>
             {asset.size && (
               <div>
@@ -136,45 +137,51 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
               {tags.map((tag) => (
                 <span key={tag} className="inline-flex items-center gap-1 text-xs bg-ink/50 border border-border rounded-full px-2.5 py-1 text-foreground-muted">
                   #{tag}
-                  <button onClick={() => removeTag(tag)} className="hover:text-coral"><X className="w-3 h-3" /></button>
+                  {!readOnly && <button onClick={() => removeTag(tag)} className="hover:text-coral"><X className="w-3 h-3" /></button>}
                 </span>
               ))}
               {tags.length === 0 && <span className="text-xs text-foreground-muted">No tags</span>}
             </div>
-            <div className="flex gap-1.5">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                placeholder="Add tag..."
-                className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
-              />
-              <button onClick={addTag} className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5">
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
+            {!readOnly && (
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  placeholder="Add tag..."
+                  className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
+                />
+                <button onClick={addTag} className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5">
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
           <input ref={replaceRef} type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.zip" onChange={handleReplace} className="hidden" />
           <div className="flex gap-2 pt-2">
-            <button onClick={() => onSave({ name, tags })} className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              Save
-            </button>
-            {asset.thumbnail && (
-              <button onClick={handleDownload} className="flex items-center gap-1.5 text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Download">
-                <Download className="w-3.5 h-3.5" />
+            {!readOnly && (
+              <button onClick={() => onSave({ name, tags })} className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                Save
               </button>
             )}
-            {onReplace && (
+            {asset.thumbnail && (
+              <button onClick={handleDownload} className={`flex items-center gap-1.5 text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 text-sm transition-colors${readOnly ? " flex-1 justify-center" : ""}`} title="Download">
+                <Download className="w-3.5 h-3.5" /> {readOnly && "Download"}
+              </button>
+            )}
+            {!readOnly && onReplace && (
               <button onClick={() => replaceRef.current?.click()} className="flex items-center gap-1.5 text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Replace file">
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
             )}
-            <button onClick={onDelete} className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Delete">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            {!readOnly && (
+              <button onClick={onDelete} className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Delete">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </div>

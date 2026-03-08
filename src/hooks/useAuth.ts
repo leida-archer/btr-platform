@@ -5,18 +5,19 @@ interface AuthState {
   loading: boolean;
   role: string;
   name: string;
+  email: string;
 }
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({ authenticated: false, loading: true, role: "", name: "" });
+  const [state, setState] = useState<AuthState>({ authenticated: false, loading: true, role: "", name: "", email: "" });
 
   const verify = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/verify", { credentials: "include" });
       const data = await res.json();
-      setState({ authenticated: data.authenticated === true, loading: false, role: data.role ?? "", name: data.name ?? "" });
+      setState({ authenticated: data.authenticated === true, loading: false, role: data.role ?? "", name: data.name ?? "", email: data.email ?? "" });
     } catch {
-      setState({ authenticated: false, loading: false, role: "", name: "" });
+      setState({ authenticated: false, loading: false, role: "", name: "", email: "" });
     }
   }, []);
 
@@ -34,7 +35,7 @@ export function useAuth() {
       });
       const data = await res.json();
       if (data.authenticated) {
-        setState({ authenticated: true, loading: false, role: data.role ?? "", name: data.name ?? "" });
+        setState({ authenticated: true, loading: false, role: data.role ?? "", name: data.name ?? "", email: data.email ?? "" });
         return true;
       }
       return false;
@@ -47,9 +48,13 @@ export function useAuth() {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } finally {
-      setState({ authenticated: false, loading: false, role: "", name: "" });
+      setState({ authenticated: false, loading: false, role: "", name: "", email: "" });
     }
   };
 
-  return { ...state, login, logout };
+  const setEmail = (email: string) => {
+    setState((prev) => ({ ...prev, email }));
+  };
+
+  return { ...state, login, logout, setEmail };
 }

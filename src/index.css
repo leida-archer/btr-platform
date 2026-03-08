@@ -126,7 +126,7 @@
 .hero__particles { position: absolute; inset: 0; overflow: hidden; }
 .hero__particle { position: absolute; width: 3px; height: 3px; background: rgba(214,36,110,0.4); border-radius: 50%; animation: particleFloat linear infinite; }
 .hero__content { position: relative; z-index: 2; text-align: center; padding: 0 24px; }
-.hero__logo { width: clamp(220px, 45vw, 400px); height: auto; margin: 0 auto 24px; animation: fadeUp 0.8s 0.5s both; }
+.hero__logo { height: clamp(220px, 40vh, 380px); width: auto; margin: 0 auto 24px; animation: fadeUp 0.8s 0.5s both; }
 .hero__tagline { font-family: var(--font-heading); font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: 300; color: var(--color-mist); margin-bottom: 40px; letter-spacing: 0.04em; animation: fadeUp 0.8s 0.7s both; }
 .hero__actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.8s 0.9s both; }
 .hero__scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--color-slate); font-family: var(--font-heading); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; animation: fadeIn 1s 1.5s both; }

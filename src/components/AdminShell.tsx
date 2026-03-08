@@ -4,10 +4,12 @@ import {
   LayoutDashboard,
   Calendar,
   Kanban,
+  File,
   Image,
   PartyPopper,
   Calculator,
   Settings,
+  UserCircle,
   ExternalLink,
   LogOut,
   Search,
@@ -19,12 +21,13 @@ import {
 } from "lucide-react";
 import { FilterProvider, useFilters } from "../context/FilterContext";
 import { useData } from "../context/DataContext";
+import ProfileModal from "./ProfileModal";
 
 const CONTENT_NAV = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
   { to: "/admin/calendar", icon: Calendar, label: "Calendar" },
   { to: "/admin/pipeline", icon: Kanban, label: "Pipeline" },
-  { to: "/admin/assets", icon: Image, label: "Assets" },
+  { to: "/admin/assets", icon: File, label: "Assets" },
 ];
 
 const EVENTS_NAV = [
@@ -90,15 +93,6 @@ const STATUS_COLORS: Record<string, string> = {
   active: "#22C55E", planning: "#F59E0B", upcoming: "#3B82F6", completed: "#8B5CF6",
 };
 
-const PAGE_ITEMS: SearchItem[] = [
-  { label: "Dashboard", sublabel: "Overview & stats", path: "/admin", icon: LayoutDashboard, category: "Pages" },
-  { label: "Calendar", sublabel: "Content calendar", path: "/admin/calendar", icon: Calendar, category: "Pages" },
-  { label: "Pipeline", sublabel: "Content pipeline board", path: "/admin/pipeline", icon: Kanban, category: "Pages" },
-  { label: "Assets", sublabel: "Asset library", path: "/admin/assets", icon: Image, category: "Pages" },
-  { label: "Campaigns", sublabel: "Campaign management", path: "/admin/events", icon: PartyPopper, category: "Pages" },
-  { label: "Ticket Calculator", sublabel: "Financial planner", path: "/admin/calculator", icon: Calculator, category: "Pages" },
-  { label: "Settings", sublabel: "Admin settings", path: "/admin/settings", icon: Settings, category: "Pages" },
-];
 
 function useSearchIndex(): SearchItem[] {
   const { campaigns, posts, assets } = useData();
@@ -130,15 +124,16 @@ function useSearchIndex(): SearchItem[] {
         category: "Assets",
       };
     });
-    return [...PAGE_ITEMS, ...campaignItems, ...postItems, ...assetItems];
+    return [...campaignItems, ...postItems, ...assetItems];
   }, [campaigns, posts, assets]);
 }
 
-function TopBar() {
+function TopBar({ userName, userEmail, userRole, onEmailChange }: { userName: string; userEmail: string; userRole: string; onEmailChange: (email: string) => void }) {
   const { search, setSearch, submitSearch } = useFilters();
   const searchIndex = useSearchIndex();
   const [focused, setFocused] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
+  const [showProfile, setShowProfile] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -261,7 +256,23 @@ function TopBar() {
             </div>
           )}
         </div>
+        <button
+          onClick={() => setShowProfile(true)}
+          className="ml-auto p-2 rounded-lg text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+          title="Account settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
+      {showProfile && (
+        <ProfileModal
+          name={userName}
+          email={userEmail}
+          role={userRole}
+          onEmailChange={onEmailChange}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
     </header>
   );
 }
@@ -377,7 +388,7 @@ function MainContent() {
   );
 }
 
-export default function AdminShell({ onLogout, role }: { onLogout: () => void; role: string }) {
+export default function AdminShell({ onLogout, role, userName, userEmail, onEmailChange }: { onLogout: () => void; role: string; userName: string; userEmail: string; onEmailChange: (email: string) => void }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -408,21 +419,19 @@ export default function AdminShell({ onLogout, role }: { onLogout: () => void; r
               <ExternalLink className="w-4 h-4 shrink-0" />
               <span>View Site</span>
             </a>
-            {role === "admin" && (
-              <NavLink
-                to="/admin/settings"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                    isActive
-                      ? "bg-magenta/15 text-magenta"
-                      : "text-foreground-muted hover:text-foreground hover:bg-surface-hover"
-                  }`
-                }
-              >
-                <Settings className="w-4 h-4 shrink-0" />
-                <span>Settings</span>
-              </NavLink>
-            )}
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive
+                    ? "bg-magenta/15 text-magenta"
+                    : "text-foreground-muted hover:text-foreground hover:bg-surface-hover"
+                }`
+              }
+            >
+              <UserCircle className="w-4 h-4 shrink-0" />
+              <span>Admin</span>
+            </NavLink>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors w-full"
@@ -434,7 +443,7 @@ export default function AdminShell({ onLogout, role }: { onLogout: () => void; r
         </aside>
 
         <div className="flex-1 flex flex-col min-w-0 h-screen">
-          <TopBar />
+          <TopBar userName={userName} userEmail={userEmail} userRole={role} onEmailChange={onEmailChange} />
           <MainContent />
         </div>
       </div>

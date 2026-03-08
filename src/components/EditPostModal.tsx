@@ -43,6 +43,7 @@ interface EditPostModalProps {
   availableAssets?: AssetOption[];
   eventOptions?: { value: string; label: string }[];
   assigneeOptions?: { value: string; label: string }[];
+  readOnly?: boolean;
 }
 
 const PLATFORM_OPTIONS = [
@@ -88,7 +89,7 @@ export function emptyPost(): PostData {
 
 export default function EditPostModal({
   post, statusOptions, onSave, onDelete, onClose, modalTitle = "Edit Post", saveLabel = "Save",
-  availableAssets, eventOptions, assigneeOptions,
+  availableAssets, eventOptions, assigneeOptions, readOnly,
 }: EditPostModalProps) {
   const ASSIGNEE_OPTIONS = assigneeOptions ?? DEFAULT_ASSIGNEE_OPTIONS;
   const [title, setTitle] = useState(post.title);
@@ -146,18 +147,18 @@ export default function EditPostModal({
           {/* Title */}
           <div>
             <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Title</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className={inputClass} />
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className={inputClass} disabled={readOnly} />
           </div>
 
           {/* Platform + Post Type */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Platform</label>
-              <Dropdown label="Platform" options={PLATFORM_OPTIONS} value={platform} onChange={setPlatform} fullWidth />
+              <Dropdown label="Platform" options={PLATFORM_OPTIONS} value={platform} onChange={setPlatform} fullWidth disabled={readOnly} />
             </div>
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Post Type</label>
-              <Dropdown label="Post Type" options={POST_TYPE_OPTIONS} value={postType} onChange={setPostType} fullWidth />
+              <Dropdown label="Post Type" options={POST_TYPE_OPTIONS} value={postType} onChange={setPostType} fullWidth disabled={readOnly} />
             </div>
           </div>
 
@@ -165,11 +166,11 @@ export default function EditPostModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Stage</label>
-              <Dropdown label="Stage" options={statusDropdownOptions} value={status} onChange={setStatus} fullWidth />
+              <Dropdown label="Stage" options={statusDropdownOptions} value={status} onChange={setStatus} fullWidth disabled={readOnly} />
             </div>
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Priority</label>
-              <Dropdown label="Priority" options={PRIORITY_OPTIONS} value={priority} onChange={setPriority} fullWidth />
+              <Dropdown label="Priority" options={PRIORITY_OPTIONS} value={priority} onChange={setPriority} fullWidth disabled={readOnly} />
             </div>
           </div>
 
@@ -177,11 +178,11 @@ export default function EditPostModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Assignee</label>
-              <Dropdown label="Assignee" options={ASSIGNEE_OPTIONS} value={assignee} onChange={setAssignee} fullWidth />
+              <Dropdown label="Assignee" options={ASSIGNEE_OPTIONS} value={assignee} onChange={setAssignee} fullWidth disabled={readOnly} />
             </div>
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Event</label>
-              <Dropdown label="Event" options={eventDropdownOptions} value={event} onChange={setEvent} fullWidth />
+              <Dropdown label="Event" options={eventDropdownOptions} value={event} onChange={setEvent} fullWidth disabled={readOnly} />
             </div>
           </div>
 
@@ -189,11 +190,11 @@ export default function EditPostModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Scheduled Date</label>
-              <input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className={inputClass + " [color-scheme:dark]"} />
+              <input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className={inputClass + " [color-scheme:dark]"} disabled={readOnly} />
             </div>
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Scheduled Time</label>
-              <input type="time" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} className={inputClass + " [color-scheme:dark]"} />
+              <input type="time" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} className={inputClass + " [color-scheme:dark]"} disabled={readOnly} />
             </div>
           </div>
 
@@ -206,6 +207,7 @@ export default function EditPostModal({
               placeholder="Post caption / copy..."
               rows={3}
               className={inputClass + " resize-none"}
+              disabled={readOnly}
             />
           </div>
 
@@ -218,6 +220,7 @@ export default function EditPostModal({
               placeholder="Internal notes..."
               rows={2}
               className={inputClass + " resize-none"}
+              disabled={readOnly}
             />
           </div>
 
@@ -228,41 +231,43 @@ export default function EditPostModal({
               {tags.map((tag) => (
                 <span key={tag} className="inline-flex items-center gap-1 text-xs bg-ink/50 border border-border rounded-full px-2.5 py-1 text-foreground-muted">
                   #{tag}
-                  <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="hover:text-coral">
+                  {!readOnly && <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="hover:text-coral">
                     <X className="w-3 h-3" />
-                  </button>
+                  </button>}
                 </span>
               ))}
               {tags.length === 0 && <span className="text-xs text-foreground-muted">No tags</span>}
             </div>
-            <div className="flex gap-1.5">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
+            {!readOnly && (
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const tag = newTag.trim().toLowerCase();
+                      if (tag && !tags.includes(tag)) setTags([...tags, tag]);
+                      setNewTag("");
+                    }
+                  }}
+                  placeholder="Add tag..."
+                  className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
                     const tag = newTag.trim().toLowerCase();
                     if (tag && !tags.includes(tag)) setTags([...tags, tag]);
                     setNewTag("");
-                  }
-                }}
-                placeholder="Add tag..."
-                className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const tag = newTag.trim().toLowerCase();
-                  if (tag && !tags.includes(tag)) setTags([...tags, tag]);
-                  setNewTag("");
-                }}
-                className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5"
-              >
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
+                  }}
+                  className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Linked Assets */}
@@ -286,42 +291,46 @@ export default function EditPostModal({
                           <Icon className="w-3.5 h-3.5" style={{ color: assetTypeColors[a.type] }} />
                         )}
                         <span className="truncate max-w-[120px]">{a.name}</span>
-                        <button onClick={() => setLinkedAssetIds(linkedAssetIds.filter((id) => id !== a.id))} className="hover:text-coral ml-0.5">
+                        {!readOnly && <button onClick={() => setLinkedAssetIds(linkedAssetIds.filter((id) => id !== a.id))} className="hover:text-coral ml-0.5">
                           <X className="w-3 h-3" />
-                        </button>
+                        </button>}
                       </span>
                     );
                   })}
                 </div>
               )}
-              <button
-                type="button"
-                onClick={() => { setShowAssetPicker(true); setAssetSearch(""); }}
-                className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 w-full justify-center transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> Manage Assets
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => { setShowAssetPicker(true); setAssetSearch(""); }}
+                  className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 w-full justify-center transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Manage Assets
+                </button>
+              )}
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <button
-              onClick={handleSave}
-              className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              {saveLabel}
-            </button>
-            {onDelete && (
+          {!readOnly && (
+            <div className="flex gap-2 pt-2">
               <button
-                onClick={onDelete}
-                className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors"
-                title="Delete"
+                onClick={handleSave}
+                className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                {saveLabel}
               </button>
-            )}
-          </div>
+              {onDelete && (
+                <button
+                  onClick={onDelete}
+                  className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

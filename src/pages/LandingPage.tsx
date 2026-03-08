@@ -78,7 +78,7 @@ export default function LandingPage() {
           <Particles />
         </div>
         <div className="hero__content">
-          <img src="/logos/8c-option-a-orange-waveform.svg" alt="Beyond the Rhythm" className="hero__logo" />
+          <img src="/logos/2e-ripple-on-dark.svg" alt="Beyond the Rhythm" className="hero__logo" />
           <p className="hero__tagline">Where sound becomes feeling</p>
           <div className="hero__actions">
             <a href="#events" className="btn btn--gradient">Explore Events</a>
@@ -148,34 +148,17 @@ export default function LandingPage() {
           <p className="section-label" style={{ textAlign: "center" }}>What's Next</p>
           <h2 className="section-title">Upcoming Events</h2>
           <div className="events__grid">
-            {[
-              { name: "BtR San Diego", date: "May 1, 2026", status: "onsale", hue: "330", image: "/images/venue/FIT_Social_Sunset.jpg" },
-              { name: "BtR Los Angeles", date: "Jun 14, 2026", status: "soon", hue: "270" },
-              { name: "BtR Seattle", date: "Aug 8, 2026", status: "soon", hue: "200" },
-              { name: "BtR Portland", date: "Sep 20, 2026", status: "soon", hue: "40" },
-            ].map((e) => (
-              <div className="event-card" key={e.name}>
-                <div className="event-card__image">
-                  {e.image ? (
-                    <img src={e.image} alt={e.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <div className="event-card__image-placeholder" style={{ background: `linear-gradient(135deg, hsl(${e.hue}, 60%, 12%), hsl(${Number(e.hue) + 30}, 50%, 8%))` }}>
-                      <img src="/icons/3-waveform-mono.svg" alt="" style={{ width: 60, height: 60, opacity: 0.3 }} />
-                    </div>
-                  )}
-                  <span className={`event-card__status event-card__status--${e.status}`}>
-                    {e.status === "onsale" ? "On Sale" : "Coming Soon"}
-                  </span>
-                </div>
-                <div className="event-card__body">
-                  <h3 className="event-card__name">{e.name}</h3>
-                  <p className="event-card__date">{e.date}</p>
-                  <button className="btn btn--sm btn--outline" style={{ width: "100%" }}>
-                    {e.status === "onsale" ? "Get Tickets" : "Notify Me"}
-                  </button>
-                </div>
+            <div className="event-card">
+              <div className="event-card__image">
+                <img src="/images/venue/FIT_Social_Sunset.jpg" alt="BtR San Diego" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className="event-card__status event-card__status--onsale">On Sale</span>
               </div>
-            ))}
+              <div className="event-card__body">
+                <h3 className="event-card__name">BtR San Diego</h3>
+                <p className="event-card__date">May 1, 2026 — FIT Social</p>
+                <a href="#tickets" className="btn btn--sm btn--outline" style={{ width: "100%" }}>Get Tickets</a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

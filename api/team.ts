@@ -38,6 +38,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { name, email, role } = req.body;
         if (!name || !email) return res.status(400).json({ error: "Name and email required" });
 
+        // Prevent duplicate email
+        const existing = await prisma.teamMember.findUnique({ where: { email } });
+        if (existing) return res.status(409).json({ error: "A member with that email already exists" });
+
         const secret = process.env.AUTH_SECRET;
         if (!secret) return res.status(500).json({ error: "Server misconfigured" });
 
@@ -90,6 +94,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case "DELETE": {
         if (getCallerRole(req) !== "admin") return res.status(403).json({ error: "Admin only" });
         if (!id) return res.status(400).json({ error: "Missing id" });
+
+        // Prevent deleting the last admin
+        const target = await prisma.teamMember.findUnique({ where: { id } });
+        if (target?.role === "admin") {
+          const adminCount = await prisma.teamMember.count({ where: { role: "admin" } });
+          if (adminCount <= 1) {
+            return res.status(400).json({ error: "Cannot remove the last admin account" });
+          }
+        }
+
         await prisma.teamMember.delete({ where: { id } });
         return res.json({ deleted: true });
       }

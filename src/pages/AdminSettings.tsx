@@ -10,7 +10,8 @@ const roleConfig = {
   viewer: { label: "Viewer", icon: Eye, color: "#8B5CF6", bg: "rgba(139,92,246,0.15)" },
 };
 
-export default function AdminSettings() {
+export default function AdminSettings({ role = "admin" }: { role?: string }) {
+  const isAdmin = role === "admin";
   const { teamMembers, addTeamMember, removeTeamMember } = useData();
   const [showInvite, setShowInvite] = useState(false);
   const [inviteName, setInviteName] = useState("");
@@ -38,14 +39,19 @@ export default function AdminSettings() {
 
   return (
     <div>
-      <h1 className="font-heading text-2xl font-bold mb-6">Settings</h1>
+      <h1 className="font-heading text-2xl font-bold mb-6">Admin</h1>
 
       <div className="bg-surface border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-5 gap-4">
           <h2 className="font-heading text-lg font-semibold">Team Members</h2>
           <button
-            onClick={() => setShowInvite(!showInvite)}
-            className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
+            onClick={() => isAdmin && setShowInvite(!showInvite)}
+            disabled={!isAdmin}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 ${
+              isAdmin
+                ? "bg-magenta hover:bg-magenta/90 text-white"
+                : "bg-magenta/20 text-foreground-muted/50 cursor-not-allowed"
+            }`}
           >
             {showInvite ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showInvite ? "Cancel" : "Invite Member"}
@@ -117,18 +123,20 @@ export default function AdminSettings() {
                   <RoleIcon className="w-3 h-3" />
                   {rc.label}
                 </span>
-                <div className="shrink-0 w-16 text-right">
-                  {isLastAdmin ? (
-                    <span className="text-xs text-foreground-muted">Protected</span>
-                  ) : (
-                    <button
-                      onClick={() => handleRemove(m.id)}
-                      className="text-xs text-foreground-muted hover:text-coral transition-colors"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
+                {isAdmin && (
+                  <div className="shrink-0 w-16 text-right">
+                    {isLastAdmin ? (
+                      <span className="text-xs text-foreground-muted">Protected</span>
+                    ) : (
+                      <button
+                        onClick={() => handleRemove(m.id)}
+                        className="text-xs text-foreground-muted hover:text-coral transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

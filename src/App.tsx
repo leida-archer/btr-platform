@@ -12,6 +12,7 @@ import AdminPipeline from "./pages/AdminPipeline";
 import AdminAssets from "./pages/AdminAssets";
 import AdminCampaigns from "./pages/AdminCampaigns";
 import AdminSettings from "./pages/AdminSettings";
+import { RoleProvider } from "./context/RoleContext";
 
 const STATIC_PREVIEW = import.meta.env.VITE_STATIC_PREVIEW === "true";
 
@@ -36,7 +37,7 @@ function ProtectedRoute({
 }
 
 export default function App() {
-  const { authenticated, loading, login, logout, role } = useAuth();
+  const { authenticated, loading, login, logout, role, name, email, setEmail } = useAuth();
   const effectiveRole = STATIC_PREVIEW ? "admin" : role;
   const Router = STATIC_PREVIEW ? HashRouter : BrowserRouter;
 
@@ -51,9 +52,11 @@ export default function App() {
           path="/admin"
           element={
             <ProtectedRoute authenticated={authenticated} loading={loading}>
-              <DataProvider>
-                <AdminShell onLogout={logout} role={effectiveRole} />
-              </DataProvider>
+              <RoleProvider role={effectiveRole}>
+                <DataProvider>
+                  <AdminShell onLogout={logout} role={effectiveRole} userName={name} userEmail={email} onEmailChange={setEmail} />
+                </DataProvider>
+              </RoleProvider>
             </ProtectedRoute>
           }
         >
@@ -63,7 +66,7 @@ export default function App() {
           <Route path="assets" element={<AdminAssets />} />
           <Route path="events" element={<AdminCampaigns />} />
           <Route path="calculator" element={<AdminCalculator />} />
-          <Route path="settings" element={effectiveRole === "admin" ? <AdminSettings /> : <Navigate to="/admin" replace />} />
+          <Route path="settings" element={<AdminSettings role={effectiveRole} />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, Grid, List, Search, Filter, Image, Film, FileText, Music } from "lucide-react";
 import EditAssetModal from "../components/EditAssetModal";
 import { useData } from "../context/DataContext";
+import { useIsViewer } from "../context/RoleContext";
 import type { AssetType } from "../types/data";
 
 const typeConfig = {
@@ -12,6 +13,7 @@ const typeConfig = {
 };
 
 export default function AdminAssets() {
+  const isViewer = useIsViewer();
   const { assets, addAsset, updateAsset, deleteAsset } = useData();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
@@ -35,22 +37,36 @@ export default function AdminAssets() {
     audio: assets.filter((a) => a.type === "audio").length,
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach((f) => {
+    for (const f of Array.from(files)) {
       let type: AssetType = "document";
       if (f.type.startsWith("image/")) type = "image";
       else if (f.type.startsWith("video/")) type = "video";
       else if (f.type.startsWith("audio/")) type = "audio";
       const sizeMB = (f.size / 1024 / 1024).toFixed(1);
+      const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+      // Upload file to Vercel Blob for a persistent URL
+      let thumbnail: string | undefined;
+      try {
+        const res = await fetch(`/api/upload?filename=${encodeURIComponent(f.name)}`, {
+          method: "POST",
+          body: f,
+        });
+        if (res.ok) {
+          const blob = await res.json();
+          thumbnail = blob.proxyUrl;
+        }
+      } catch { /* fall through — asset saved without thumbnail */ }
+
       addAsset({
-        name: f.name, type, size: `${sizeMB} MB`,
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        name: f.name, type, size: `${sizeMB} MB`, date,
         tags: ["uploaded"],
-        thumbnail: type === "image" ? URL.createObjectURL(f) : undefined,
+        thumbnail,
       });
-    });
+    }
     e.target.value = "";
   };
 
@@ -66,14 +82,21 @@ export default function AdminAssets() {
     setSelectedId(null);
   };
 
-  const handleReplace = (file: File) => {
+  const handleReplace = async (file: File) => {
     if (!selected) return;
     let type: AssetType = "document";
     if (file.type.startsWith("image/")) type = "image";
     else if (file.type.startsWith("video/")) type = "video";
     else if (file.type.startsWith("audio/")) type = "audio";
     const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-    const thumbnail = type === "image" ? URL.createObjectURL(file) : undefined;
+    let thumbnail: string | undefined;
+    try {
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+      if (res.ok) {
+        const blob = await res.json();
+        thumbnail = blob.proxyUrl;
+      }
+    } catch { /* no thumbnail */ }
     updateAsset(selected.id, { name: file.name, type, size: `${sizeMB} MB`, date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }), thumbnail });
   };
 
@@ -82,12 +105,14 @@ export default function AdminAssets() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="font-heading text-2xl font-bold">Assets</h1>
         <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.zip" onChange={handleUpload} className="hidden" />
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
-        >
-          <Upload className="w-4 h-4" /> Upload
-        </button>
+        {!isViewer && (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0"
+          >
+            <Upload className="w-4 h-4" /> Upload
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
@@ -187,6 +212,7 @@ export default function AdminAssets() {
           onDelete={handleDelete}
           onClose={() => setSelectedId(null)}
           onReplace={handleReplace}
+          readOnly={isViewer}
         />
       )}
     </div>
