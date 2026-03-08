@@ -78,7 +78,7 @@ export default function LandingPage() {
           <Particles />
         </div>
         <div className="hero__content">
-          <img src="/logos/2d-primary-gradient-on-dark-tree.svg" alt="Beyond the Rhythm" className="hero__logo" />
+          <img src="/logos/2e-ripple-on-dark.svg" alt="Beyond the Rhythm" className="hero__logo" />
           <p className="hero__tagline">Where sound becomes feeling</p>
           <div className="hero__actions">
             <a href="#events" className="btn btn--gradient">Explore Events</a>

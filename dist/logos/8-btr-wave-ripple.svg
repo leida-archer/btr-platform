@@ -1,0 +1,67 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="23" y1="0" x2="489" y2="0">
+      <stop offset="0%" stop-color="#D6246E"/>
+      <stop offset="50%" stop-color="#E8652B"/>
+      <stop offset="100%" stop-color="#F2A922"/>
+    </linearGradient>
+
+    <!-- Bolder ripple gradient -->
+    <radialGradient id="rg" gradientUnits="userSpaceOnUse" cx="256" cy="260" r="150">
+      <stop offset="0%" stop-color="#FFB829"/>
+      <stop offset="30%" stop-color="#F2A922"/>
+      <stop offset="55%" stop-color="#E8652B"/>
+      <stop offset="100%" stop-color="#D6246E"/>
+    </radialGradient>
+
+    <!-- BTR letter mask with rounded strokes -->
+    <mask id="btr">
+      <rect width="512" height="512" fill="black"/>
+      <g fill="white" stroke="white" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M8.6,63.8L22.7,64.3Q30.5,63.7,35.1,60.0Q38.3,57.2,37.8,53.0Q37.2,48.5,33.7,45.0Q32.0,43.5,29.7,42.7Q32.8,41.7,35.5,39.3Q38.0,36.8,38.4,32.6Q37.9,27.2,33.5,23.4Q29.6,20.5,21.8,21.1L7.7,20.6Z M20.1,36.8Q19.9,38.0,21.1,38.0L23.2,37.8Q26.5,37.6,28.3,35.7Q29.3,34.1,29.4,32.3Q29.2,29.9,27.3,28.5Q25.6,27.5,23.2,27.6L21.1,27.8Q19.9,27.8,20.1,29.0Z M20.3,57.8Q20.4,59.0,21.6,59.0L23.7,58.8Q27.6,58.5,29.2,56.3Q30.2,54.4,30.0,52.6Q29.6,50.2,27.6,48.5Q25.7,47.5,22.4,47.7L20.3,47.9Q19.1,47.9,19.2,49.1Z" transform="translate(134.2,194.8) scale(2.800) translate(-7.7,-20.5)" fill-rule="evenodd"/>
+        <path d="M235.4,64.2L243.8,64.0L244.1,41.3L249.5,41.1Q250.8,41.1,250.7,39.8L250.0,34.8Q249.9,33.5,248.7,33.5L229.3,33.5Q228.1,33.5,228.2,34.8L228.9,39.8Q229.0,41.1,230.2,41.1L235.7,41.5Z" transform="translate(225.2,231.5) scale(2.800) translate(-228.1,-33.5)"/>
+        <path d="M313.1,63.8L325.1,64.4L324.1,45.2L325.6,45.1L332.0,63.9L342.2,63.8L331.7,43.5Q335.5,41.4,338.3,38.4Q341.2,35.5,341.3,31.9Q340.9,27.1,337.5,24.0Q333.5,20.5,326.3,21.1L312.2,20.6Z M325.0,38.0Q324.9,38.9,325.8,38.9L327.6,38.7Q330.0,38.6,331.5,36.3Q332.6,34.5,332.6,32.1Q332.5,29.7,330.8,28.3Q329.2,27.5,327.7,27.6L325.9,27.8Q325.0,27.8,325.1,28.7Z" transform="translate(293.8,194.5) scale(2.800) translate(-312.2,-20.5)" fill-rule="evenodd"/>
+      </g>
+    </mask>
+  </defs>
+
+  <!-- Waveform bars -->
+  <rect x="23.0" y="187.8" width="18" height="136.4" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="51.0" y="180.6" width="18" height="150.8" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="79.0" y="172.3" width="18" height="167.3" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="107.0" y="133.7" width="18" height="244.6" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="135.0" y="98.7" width="18" height="92.4" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="135.0" y="320.7" width="18" height="92.6" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="163.0" y="108.4" width="18" height="83.6" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="163.0" y="321.5" width="18" height="82.1" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="191.0" y="85.6" width="18" height="107.0" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="191.0" y="319.6" width="18" height="106.8" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="219.0" y="20.8" width="18" height="191.8" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="219.0" y="301.4" width="18" height="189.8" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="247.0" y="35.1" width="18" height="192.4" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="247.0" y="321.5" width="18" height="155.5" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="275.0" y="86.0" width="18" height="104.8" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="275.0" y="258.3" width="18" height="167.6" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="303.0" y="67.2" width="18" height="123.9" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="303.0" y="321.1" width="18" height="123.7" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="331.0" y="63.7" width="18" height="128.3" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="331.0" y="321.4" width="18" height="126.9" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="359.0" y="121.9" width="18" height="73.6" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="359.0" y="320.0" width="18" height="70.2" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="387.0" y="154.1" width="18" height="203.7" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="415.0" y="156.3" width="18" height="199.4" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="443.0" y="174.8" width="18" height="162.4" rx="9.0" ry="9.0" fill="url(#g)"/>
+  <rect x="471.0" y="195.0" width="18" height="122.0" rx="9.0" ry="9.0" fill="url(#g)"/>
+
+  <!-- BTR letters with ripple pattern (masked with rounded strokes) -->
+  <g mask="url(#btr)">
+    <rect x="0" y="0" width="512" height="512" fill="url(#rg)" opacity="0.22"/>
+    <circle cx="256" cy="260" r="14" fill="url(#rg)"/>
+    <circle cx="256" cy="260" r="38" fill="none" stroke="url(#rg)" stroke-width="14" opacity="1.0"/>
+    <circle cx="256" cy="260" r="64" fill="none" stroke="url(#rg)" stroke-width="13" opacity="0.92"/>
+    <circle cx="256" cy="260" r="90" fill="none" stroke="url(#rg)" stroke-width="12" opacity="0.82"/>
+    <circle cx="256" cy="260" r="116" fill="none" stroke="url(#rg)" stroke-width="11" opacity="0.70"/>
+    <circle cx="256" cy="260" r="142" fill="none" stroke="url(#rg)" stroke-width="10" opacity="0.58"/>
+    <circle cx="256" cy="260" r="168" fill="none" stroke="url(#rg)" stroke-width="9" opacity="0.46"/>
+  </g>
+</svg>

@@ -353,10 +353,13 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
             <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-5">Attendance Goal</h2>
             <div className="space-y-3">
               <CostRow label="Expected Headcount"><input type="number" value={headcount} onChange={(e) => setHeadcount(+e.target.value)} className={inputClass} /></CostRow>
-              <CostRow label="Profit Margin">
-                <span className="text-foreground-muted text-sm">%</span>
-                <input type="number" min={0} max={100} value={margin} onChange={(e) => setMargin(+e.target.value)} className={inputClass} />
-              </CostRow>
+              <div className="flex items-center justify-between gap-4">
+                <label className="text-sm shrink-0">Profit Margin</label>
+                <div className="flex items-center gap-3 shrink-0">
+                  <input type="range" min={0} max={50} value={margin} onChange={(e) => setMargin(+e.target.value)} className="w-28 accent-magenta" />
+                  <span className="text-sm font-bold w-10 text-right">{margin}%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
