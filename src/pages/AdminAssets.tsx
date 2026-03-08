@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
-import { Upload, Grid, List, Search, Filter, Image, Film, FileText, Music } from "lucide-react";
+import { useState, useRef, useMemo } from "react";
+import { Upload, Grid, List, Search, Filter, Image, Film, FileText, Music, Calendar } from "lucide-react";
 import EditAssetModal from "../components/EditAssetModal";
+import Dropdown from "../components/Dropdown";
 import { useData } from "../context/DataContext";
 import { useIsViewer } from "../context/RoleContext";
 import type { AssetType } from "../types/data";
@@ -14,17 +15,43 @@ const typeConfig = {
 
 export default function AdminAssets() {
   const isViewer = useIsViewer();
-  const { assets, addAsset, updateAsset, deleteAsset } = useData();
+  const { assets, addAsset, updateAsset, deleteAsset, posts, campaigns } = useData();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterEvent, setFilterEvent] = useState<string>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selected = selectedId ? assets.find((a) => a.id === selectedId) ?? null : null;
 
+  // Build asset→event mapping from posts (posts have event + linkedAssetIds)
+  const assetEventMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const post of posts) {
+      if (!post.event) continue;
+      for (const assetId of post.linkedAssetIds) {
+        if (!map.has(assetId)) map.set(assetId, new Set());
+        map.get(assetId)!.add(post.event);
+      }
+    }
+    return map;
+  }, [posts]);
+
+  // Collect unique event names for the dropdown
+  const eventOptions = useMemo(() => {
+    const names = new Set<string>();
+    campaigns.forEach((c) => names.add(c.name));
+    posts.forEach((p) => { if (p.event) names.add(p.event); });
+    return Array.from(names).sort();
+  }, [campaigns, posts]);
+
   const filtered = assets.filter((a) => {
     if (filterType !== "all" && a.type !== filterType) return false;
+    if (filterEvent !== "all") {
+      const events = assetEventMap.get(a.id);
+      if (!events || !events.has(filterEvent)) return false;
+    }
     if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.tags.some((t) => t.includes(search.toLowerCase()))) return false;
     return true;
   });
@@ -131,22 +158,33 @@ export default function AdminAssets() {
       </div>
 
       <div className="bg-surface border border-border rounded-xl p-4 mb-6">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
+        <div className="flex items-center gap-3">
+          <div className="relative w-[576px] shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
             <input type="text" placeholder="Search assets..." value={search} onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-ink/50 border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta" />
           </div>
-          <div className="flex items-center gap-1">
+          {eventOptions.length > 0 && (
+            <div className="flex items-center gap-1.5 w-52 shrink-0">
+              <Calendar className="w-4 h-4 text-foreground-muted shrink-0" />
+              <Dropdown
+                label=""
+                options={[{ value: "all", label: "All Events" }, ...eventOptions.map((e) => ({ value: e, label: e }))]}
+                value={filterEvent}
+                onChange={setFilterEvent}
+                fullWidth
+              />
+            </div>
+          )}
+          <div className="flex items-center gap-1 shrink-0">
             <Filter className="w-4 h-4 text-foreground-muted" />
             {["all", "image", "video", "document", "audio"].map((t) => (
               <button key={t} onClick={() => setFilterType(t)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filterType === t ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${filterType === t ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
                 {t === "all" ? "All" : t.charAt(0).toUpperCase() + t.slice(1) + "s"}
               </button>
             ))}
-          </div>
-          <div className="flex items-center gap-1 ml-auto">
+            <span className="w-px h-5 bg-border mx-1" />
             <button onClick={() => setView("grid")} className={`p-2 rounded-lg transition-colors ${view === "grid" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
               <Grid className="w-4 h-4" />
             </button>
@@ -166,8 +204,13 @@ export default function AdminAssets() {
               <div key={asset.id} onClick={() => setSelectedId(asset.id)}
                 className="bg-surface border border-border rounded-xl overflow-hidden hover:border-magenta/30 transition-colors cursor-pointer">
                 <div className="aspect-square bg-ink/50 flex items-center justify-center overflow-hidden">
-                  {asset.thumbnail ? <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
-                    : <TypeIcon className="w-10 h-10" style={{ color: tc.color, opacity: 0.5 }} />}
+                  {asset.thumbnail && asset.type === "video" ? (
+                    <video src={asset.thumbnail} className="w-full h-full object-cover" muted playsInline />
+                  ) : asset.thumbnail && asset.type === "image" ? (
+                    <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <TypeIcon className="w-10 h-10" style={{ color: tc.color, opacity: 0.5 }} />
+                  )}
                 </div>
                 <div className="p-3">
                   <p className="text-sm font-medium truncate">{asset.name}</p>

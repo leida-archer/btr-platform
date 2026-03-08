@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus, X, Shield, ShieldAlert, Eye } from "lucide-react";
 import Dropdown from "../components/Dropdown";
 import { useData } from "../context/DataContext";
@@ -9,6 +9,30 @@ const roleConfig = {
   editor: { label: "Editor", icon: Shield, color: "#F2A922", bg: "rgba(242,169,34,0.15)" },
   viewer: { label: "Viewer", icon: Eye, color: "#8B5CF6", bg: "rgba(139,92,246,0.15)" },
 };
+
+function RoleBadge({ rc, RoleIcon, isLastAdmin }: { rc: typeof roleConfig.admin; RoleIcon: typeof ShieldAlert; isLastAdmin: boolean }) {
+  const [showTip, setShowTip] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  return (
+    <span
+      ref={ref}
+      className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 cursor-default"
+      style={{ backgroundColor: rc.bg, color: rc.color }}
+      onMouseEnter={() => isLastAdmin && setShowTip(true)}
+      onMouseLeave={() => setShowTip(false)}
+    >
+      <RoleIcon className="w-3 h-3" />
+      {rc.label}
+      {showTip && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg bg-charcoal border border-border text-xs text-foreground-muted whitespace-nowrap shadow-lg z-50">
+          The last remaining admin cannot be removed or demoted.
+          <span className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-charcoal" />
+        </span>
+      )}
+    </span>
+  );
+}
 
 export default function AdminSettings({ role = "admin" }: { role?: string }) {
   const isAdmin = role === "admin";
@@ -116,13 +140,7 @@ export default function AdminSettings({ role = "admin" }: { role?: string }) {
                   <p className="text-sm font-medium truncate">{m.name}</p>
                   <p className="text-xs text-foreground-muted truncate mt-0.5">{m.email}</p>
                 </div>
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0"
-                  style={{ backgroundColor: rc.bg, color: rc.color }}
-                >
-                  <RoleIcon className="w-3 h-3" />
-                  {rc.label}
-                </span>
+                <RoleBadge rc={rc} RoleIcon={RoleIcon} isLastAdmin={isLastAdmin} />
                 {isAdmin && (
                   <div className="shrink-0 w-16 text-right">
                     {isLastAdmin ? (
@@ -140,13 +158,6 @@ export default function AdminSettings({ role = "admin" }: { role?: string }) {
               </div>
             );
           })}
-        </div>
-
-        <div className="mt-5 p-4 rounded-lg bg-ink/50 border border-border">
-          <p className="text-sm text-foreground-muted flex items-center gap-3 leading-relaxed">
-            <ShieldAlert className="w-5 h-5 text-magenta shrink-0" />
-            The last remaining admin cannot be removed or demoted. This prevents accidental lockout.
-          </p>
         </div>
       </div>
 

@@ -54,14 +54,26 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
 
   const removeTag = (tag: string) => setTags(tags.filter((t) => t !== tag));
 
-  const handleDownload = () => {
-    if (!asset.thumbnail) return;
-    const a = document.createElement("a");
-    a.href = asset.thumbnail;
-    a.download = asset.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownload = async () => {
+    const url = asset.thumbnail;
+    if (!url) return;
+    // Append download flag so proxy sets Content-Disposition: attachment
+    const dlUrl = url.includes("?") ? `${url}&download=1` : `${url}?download=1`;
+    try {
+      const resp = await fetch(dlUrl);
+      const blob = await resp.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = asset.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      // Fallback: open in new tab
+      window.open(url, "_blank");
+    }
   };
 
   const handleReplace = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +88,9 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
       <div className="relative bg-surface border border-border rounded-xl w-full max-w-md max-h-[90vh] flex flex-col">
         {/* Preview */}
         <div className="relative aspect-video bg-ink/50 flex items-center justify-center overflow-hidden shrink-0 rounded-t-xl">
-          {asset.thumbnail ? (
+          {asset.thumbnail && type === "video" ? (
+            <video src={asset.thumbnail} className="w-full h-full object-cover" controls muted />
+          ) : asset.thumbnail && type === "image" ? (
             <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
           ) : (
             <TypeIcon className="w-12 h-12" style={{ color: tc.color, opacity: 0.5 }} />
@@ -169,7 +183,7 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
             )}
             {asset.thumbnail && (
               <button onClick={handleDownload} className={`flex items-center gap-1.5 text-foreground-muted hover:text-foreground border border-border rounded-lg px-3 py-2 text-sm transition-colors${readOnly ? " flex-1 justify-center" : ""}`} title="Download">
-                <Download className="w-3.5 h-3.5" /> {readOnly && "Download"}
+                <Download className="w-3.5 h-3.5" /> Download
               </button>
             )}
             {!readOnly && onReplace && (

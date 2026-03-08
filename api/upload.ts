@@ -18,27 +18,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const token = process.env.BTRASSETS_READ_WRITE_TOKEN;
 
   try {
-    // GET: proxy a private blob — streams the file to the client
+    // GET: proxy a private blob — buffers fully to support Range requests (video seeking)
     if (req.method === "GET") {
       const url = req.query.url as string;
       if (!url) return res.status(400).json({ error: "Missing url" });
+      const download = req.query.download === "1";
 
       const result = await get(url, { access: "private", token });
       if (!result || result.statusCode === 304) return res.status(404).json({ error: "Not found" });
 
       const { stream, blob } = result;
-      if (blob.contentType) res.setHeader("Content-Type", blob.contentType);
-      if (blob.contentDisposition) res.setHeader("Content-Disposition", blob.contentDisposition);
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
 
+      // Buffer the entire blob so we can serve Range requests
       const reader = stream.getReader();
-      const pump = async (): Promise<void> => {
+      const chunks: Uint8Array[] = [];
+      for (;;) {
         const { done, value } = await reader.read();
-        if (done) { res.end(); return; }
-        res.write(Buffer.from(value));
-        return pump();
-      };
-      return pump();
+        if (done) break;
+        chunks.push(value);
+      }
+      const full = Buffer.concat(chunks);
+      const total = full.length;
+      const ct = blob.contentType || "application/octet-stream";
+
+      if (download) {
+        const fname = blob.pathname?.split("/").pop() || "download";
+        res.setHeader("Content-Disposition", `attachment; filename="${fname}"`);
+      }
+
+      res.setHeader("Accept-Ranges", "bytes");
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      res.setHeader("Content-Type", ct);
+
+      const rangeHeader = req.headers.range;
+      if (rangeHeader) {
+        const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+        if (match) {
+          const start = parseInt(match[1], 10);
+          const end = match[2] ? parseInt(match[2], 10) : total - 1;
+          res.writeHead(206, {
+            "Content-Range": `bytes ${start}-${end}/${total}`,
+            "Content-Length": end - start + 1,
+          });
+          return res.end(full.subarray(start, end + 1));
+        }
+      }
+
+      res.setHeader("Content-Length", total);
+      return res.end(full);
     }
 
     if (req.method === "POST") {
