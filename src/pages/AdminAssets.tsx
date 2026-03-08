@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import { Upload, Grid, List, Search, Filter, Image, Film, FileText, Music, Calendar } from "lucide-react";
+import { put } from "@vercel/blob/client";
 import EditAssetModal from "../components/EditAssetModal";
 import Dropdown from "../components/Dropdown";
 import { useData } from "../context/DataContext";
@@ -75,18 +76,27 @@ export default function AdminAssets() {
       const sizeMB = (f.size / 1024 / 1024).toFixed(1);
       const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-      // Upload file to Vercel Blob for a persistent URL
+      // 1. Get a client token from our API
       let thumbnail: string | undefined;
       try {
-        const res = await fetch(`/api/upload?filename=${encodeURIComponent(f.name)}`, {
+        const tokenRes = await fetch(`/api/upload?filename=${encodeURIComponent(f.name)}`, {
           method: "POST",
-          body: f,
         });
-        if (res.ok) {
-          const blob = await res.json();
-          thumbnail = blob.proxyUrl;
-        }
-      } catch { /* fall through — asset saved without thumbnail */ }
+        if (!tokenRes.ok) throw new Error("Failed to get upload token");
+        const { clientToken } = await tokenRes.json();
+
+        // 2. Upload directly from browser to Vercel Blob (no size limit)
+        const blob = await put(f.name, f, {
+          access: "private",
+          token: clientToken,
+          multipart: f.size > 4 * 1024 * 1024, // use multipart for files > 4MB
+        });
+
+        // 3. Build proxy URL for viewing (routes through our GET handler)
+        thumbnail = `/api/upload?url=${encodeURIComponent(blob.url)}`;
+      } catch (err) {
+        console.error("Upload failed:", err);
+      }
 
       addAsset({
         name: f.name, type, size: `${sizeMB} MB`, date,
@@ -118,17 +128,23 @@ export default function AdminAssets() {
     const sizeMB = (file.size / 1024 / 1024).toFixed(1);
     let thumbnail: string | undefined;
     try {
-      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
-      if (res.ok) {
-        const blob = await res.json();
-        thumbnail = blob.proxyUrl;
-      }
-    } catch { /* no thumbnail */ }
+      const tokenRes = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: "POST" });
+      if (!tokenRes.ok) throw new Error("Failed to get upload token");
+      const { clientToken } = await tokenRes.json();
+      const blob = await put(file.name, file, {
+        access: "private",
+        token: clientToken,
+        multipart: file.size > 4 * 1024 * 1024,
+      });
+      thumbnail = `/api/upload?url=${encodeURIComponent(blob.url)}`;
+    } catch (err) {
+      console.error("Replace upload failed:", err);
+    }
     updateAsset(selected.id, { name: file.name, type, size: `${sizeMB} MB`, date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }), thumbnail });
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 className="font-heading text-2xl font-bold">Assets</h1>
         <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.zip" onChange={handleUpload} className="hidden" />
@@ -176,7 +192,7 @@ export default function AdminAssets() {
               />
             </div>
           )}
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1 ml-auto shrink-0">
             <Filter className="w-4 h-4 text-foreground-muted" />
             {["all", "image", "video", "document", "audio"].map((t) => (
               <button key={t} onClick={() => setFilterType(t)}
