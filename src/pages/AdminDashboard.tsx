@@ -282,7 +282,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard icon={FileText} label="Total Posts" value={totalPosts} color="#8B5CF6" />
         <StatCard icon={Clock} label="Upcoming" value={upcomingCount} color="#3B82F6" />
         <StatCard icon={TrendingUp} label="In Production" value={editingCount} color="#F59E0B" />

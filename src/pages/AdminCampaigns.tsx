@@ -308,7 +308,7 @@ export default function AdminCampaigns() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={() => setEditingId(null)} />
-        <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+        <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
           <div className="flex items-center justify-between p-5 border-b border-border shrink-0">
             <h2 className="font-heading text-lg font-semibold">Edit Campaign</h2>
             <button onClick={() => setEditingId(null)} className="text-foreground-muted hover:text-foreground transition-colors"><X className="w-5 h-5" /></button>
@@ -384,7 +384,7 @@ export default function AdminCampaigns() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={() => setShowNewCampaign(false)} />
-        <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg">
+        <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none max-sm:flex max-sm:flex-col">
           <div className="flex items-center justify-between p-5 border-b border-border">
             <h2 className="font-heading text-lg font-semibold">New Campaign</h2>
             <button onClick={() => setShowNewCampaign(false)} className="text-foreground-muted hover:text-foreground transition-colors"><X className="w-5 h-5" /></button>
@@ -465,7 +465,7 @@ export default function AdminCampaigns() {
         <p className="text-xs text-foreground-muted mb-6">{active.type === "growth" ? "Growth Marketing" : "Event Marketing"}</p>
 
         {active.type !== "growth" && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
               { icon: Calendar, label: "Date", value: active.date },
               { icon: MapPin, label: "Venue", value: `${active.venue} — ${active.city}` },

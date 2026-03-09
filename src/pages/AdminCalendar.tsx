@@ -149,16 +149,24 @@ export default function AdminCalendar() {
             </div>
 
             {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="hidden sm:grid grid-cols-7 gap-1 mb-1">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
                 <div key={d} className="text-center text-xs text-foreground-muted font-heading font-semibold py-2">
                   {d}
                 </div>
               ))}
             </div>
+            {/* Mobile day headers (abbreviated) */}
+            <div className="grid sm:hidden grid-cols-7 gap-0.5 mb-1">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                <div key={i} className="text-center text-[10px] text-foreground-muted font-heading font-semibold py-1">
+                  {d}
+                </div>
+              ))}
+            </div>
 
             {/* Day cells */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
               {calendarDays.map((day) => {
                 const dayPosts = postsForDate(day);
                 const inMonth = isSameMonth(day, currentMonth);
@@ -169,20 +177,21 @@ export default function AdminCalendar() {
                   <button
                     key={day.toISOString()}
                     onClick={() => setSelectedDate(day)}
-                    className={`relative p-2 min-h-[80px] rounded-lg text-left transition-colors flex flex-col ${
+                    className={`relative p-1 sm:p-2 min-h-[48px] sm:min-h-[80px] rounded-lg text-left transition-colors flex flex-col ${
                       !inMonth ? "opacity-30" : ""
                     } ${selected ? "bg-magenta/15 border border-magenta/40" : "hover:bg-surface-hover border border-transparent"}`}
                   >
                     <span
-                      className={`text-xs font-medium ${
+                      className={`text-[10px] sm:text-xs font-medium ${
                         today
-                          ? "bg-magenta text-white w-6 h-6 rounded-full flex items-center justify-center"
+                          ? "bg-magenta text-white w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px]"
                           : "text-foreground-muted"
                       }`}
                     >
                       {format(day, "d")}
                     </span>
-                    <div className="flex flex-wrap gap-0.5 mt-1">
+                    {/* Desktop: show post titles */}
+                    <div className="hidden sm:flex flex-wrap gap-0.5 mt-1">
                       {dayPosts.slice(0, 3).map((p) => (
                         <div
                           key={p.id}
@@ -199,6 +208,18 @@ export default function AdminCalendar() {
                         <span className="text-[10px] text-foreground-muted">+{dayPosts.length - 3} more</span>
                       )}
                     </div>
+                    {/* Mobile: show dot indicators */}
+                    {dayPosts.length > 0 && (
+                      <div className="flex sm:hidden gap-0.5 mt-1 justify-center">
+                        {dayPosts.slice(0, 3).map((p) => (
+                          <div
+                            key={p.id}
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ backgroundColor: platformColors[p.platform] ?? "#9CA3AF" }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </button>
                 );
               })}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
 function Particles() {
   const ref = useRef<HTMLDivElement>(null);
@@ -42,6 +43,7 @@ function useCountdown(target: Date) {
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const eventDate = new Date("2026-05-01T20:00:00-07:00");
   const cd = useCountdown(eventDate);
 
@@ -67,9 +69,27 @@ export default function LandingPage() {
           <div className="pub-nav__right">
             <a href="#tickets" className="btn btn--gradient btn--sm">Get Tickets</a>
             <Link to="/login" className="pub-nav__team">Team</Link>
+            <button
+              className="pub-nav__hamburger"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className="pub-mobile-menu">
+          <a href="#events" onClick={() => setMobileMenuOpen(false)}>Events</a>
+          <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
+          <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
+          <a href="#tickets" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
+          <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>
+        </div>
+      )}
 
       {/* HERO */}
       <header className="hero" id="hero">

@@ -83,7 +83,7 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-surface border border-border rounded-xl w-full max-w-md max-h-[90vh] flex flex-col">
+      <div className="relative bg-surface border border-border rounded-xl w-full max-w-md max-h-[90vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
         {/* Preview */}
         <div className="relative aspect-video bg-ink/50 flex items-center justify-center overflow-hidden shrink-0 rounded-t-xl">
           {asset.thumbnail && type === "video" ? (

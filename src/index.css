@@ -262,6 +262,7 @@
    ======================================== */
 @media (max-width: 1024px) {
   .pub-nav__links { display: none; }
+  .pub-nav__hamburger { display: flex; }
   .events__grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
@@ -280,3 +281,40 @@
   .pub-footer__top { grid-template-columns: 1fr; text-align: center; }
   .pub-footer__socials { justify-content: center; }
 }
+@media (max-width: 640px) {
+  .container { padding: 0 16px; }
+  .pub-nav__inner { padding: 0 16px; }
+  .pub-nav__right .btn { padding: 8px 16px; font-size: 0.75rem; }
+  .hero__logo { width: clamp(220px, 70vw, 360px); }
+  .hero__tagline { font-size: 0.9rem; margin-bottom: 28px; }
+  .hero__actions { gap: 12px; }
+  .hero__actions .btn { width: 100%; max-width: 280px; }
+  .countdown-section { padding: 60px 0 50px; }
+  .countdown__number { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+  .ticket-card { padding: 24px 20px; }
+  .ticket-card__price { font-size: 2rem; }
+  .events-section { padding: 60px 0; }
+  .lineup { padding: 60px 0; }
+  .about { padding: 60px 0; }
+  .about__stats { gap: 24px; }
+  .about__stat-number { font-size: 1.5rem; }
+  .gallery { padding: 60px 0; }
+  .gallery__grid { grid-template-columns: 1fr; gap: 12px; }
+  .gallery__item--wide { grid-column: span 1; aspect-ratio: 16/9; }
+  .newsletter { padding: 60px 0; }
+  .newsletter__title { font-size: 1.5rem; }
+  .pub-footer { padding: 48px 0 24px; }
+  .pub-footer__top { gap: 32px; margin-bottom: 32px; }
+}
+
+/* Mobile hamburger menu */
+.pub-nav__hamburger { display: none; align-items: center; justify-content: center; width: 40px; height: 40px; color: var(--color-mist); cursor: pointer; }
+.pub-nav__hamburger:hover { color: var(--color-cream); }
+
+.pub-mobile-menu { position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0; background: rgba(26,16,24,0.96); backdrop-filter: blur(16px); z-index: 999; display: flex; flex-direction: column; padding: 32px 24px; animation: fadeIn 0.2s ease-out; }
+.pub-mobile-menu a { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 500; color: var(--color-mist); padding: 16px 0; border-bottom: 1px solid rgba(184,169,194,0.08); transition: color 0.3s; }
+.pub-mobile-menu a:hover { color: var(--color-cream); }
+.pub-mobile-menu .btn { margin-top: 24px; text-align: center; }
+
+/* Admin sidebar slide-in animation */
+@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }

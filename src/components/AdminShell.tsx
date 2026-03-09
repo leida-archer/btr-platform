@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Calendar,
@@ -18,6 +18,8 @@ import {
   Music,
   Hash,
   MapPin,
+  Menu,
+  X,
 } from "lucide-react";
 import { FilterProvider, useFilters } from "../context/FilterContext";
 import { useData } from "../context/DataContext";
@@ -35,6 +37,15 @@ const EVENTS_NAV = [
   { to: "/admin/calculator", icon: Calculator, label: "Ticket Calculator" },
 ];
 
+// Bottom nav shows a subset of the most-used pages
+const BOTTOM_NAV = [
+  { to: "/admin", icon: LayoutDashboard, label: "Home", end: true },
+  { to: "/admin/calendar", icon: Calendar, label: "Calendar" },
+  { to: "/admin/pipeline", icon: Kanban, label: "Pipeline" },
+  { to: "/admin/assets", icon: File, label: "Assets" },
+  { to: "/admin/events", icon: PartyPopper, label: "Campaigns" },
+];
+
 interface NavItem {
   to: string;
   icon: typeof LayoutDashboard;
@@ -42,7 +53,7 @@ interface NavItem {
   end?: boolean;
 }
 
-function SidebarGroup({ label, items }: { label: string; items: NavItem[] }) {
+function SidebarGroup({ label, items, onNavigate }: { label: string; items: NavItem[]; onNavigate?: () => void }) {
   return (
     <div>
       <p className="px-4 pt-4 pb-1 text-[10px] font-heading font-semibold uppercase tracking-widest text-slate">
@@ -54,6 +65,7 @@ function SidebarGroup({ label, items }: { label: string; items: NavItem[] }) {
             key={to}
             to={to}
             end={"end" in rest}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
@@ -128,7 +140,7 @@ function useSearchIndex(): SearchItem[] {
   }, [campaigns, posts, assets]);
 }
 
-function TopBar({ userName, userEmail, userRole, onEmailChange }: { userName: string; userEmail: string; userRole: string; onEmailChange: (email: string) => void }) {
+function TopBar({ userName, userEmail, userRole, onEmailChange, onMenuToggle }: { userName: string; userEmail: string; userRole: string; onEmailChange: (email: string) => void; onMenuToggle: () => void }) {
   const { search, setSearch, submitSearch } = useFilters();
   const searchIndex = useSearchIndex();
   const [focused, setFocused] = useState(false);
@@ -205,7 +217,16 @@ function TopBar({ userName, userEmail, userRole, onEmailChange }: { userName: st
 
   return (
     <header className="sticky top-0 z-30 bg-ink/80 backdrop-blur-sm border-b border-border h-14 shrink-0">
-      <div className="flex items-center h-full px-6">
+      <div className="flex items-center h-full px-3 sm:px-6">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="md:hidden p-2 -ml-1 mr-2 rounded-lg text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         <div ref={wrapperRef} className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
           <input
@@ -382,7 +403,7 @@ function SearchResultsPage() {
 function MainContent() {
   const { searchQuery } = useFilters();
   return (
-    <main className="flex-1 overflow-y-scroll p-6">
+    <main className="flex-1 overflow-y-scroll p-3 sm:p-6 pb-20 md:pb-6">
       {searchQuery ? <SearchResultsPage /> : <Outlet />}
     </main>
   );
@@ -390,62 +411,115 @@ function MainContent() {
 
 export default function AdminShell({ onLogout, role, userName, userEmail, onEmailChange }: { onLogout: () => void; role: string; userName: string; userEmail: string; onEmailChange: (email: string) => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await onLogout();
     navigate("/login");
   };
 
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between h-14 px-3 border-b border-border shrink-0">
+        <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="h-8" />
+        {/* Close button — mobile only */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="md:hidden p-1.5 rounded-lg text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="flex-1 py-3 space-y-2 overflow-y-auto">
+        <SidebarGroup label="Content" items={CONTENT_NAV} onNavigate={() => setSidebarOpen(false)} />
+        <div className="mx-4 border-t border-border" />
+        <SidebarGroup label="Events" items={EVENTS_NAV} onNavigate={() => setSidebarOpen(false)} />
+      </div>
+
+      <div className="border-t border-border py-3 px-3 space-y-1 shrink-0">
+        <a
+          href="/"
+          target="_blank"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+        >
+          <ExternalLink className="w-4 h-4 shrink-0" />
+          <span>View Site</span>
+        </a>
+        <NavLink
+          to="/admin/settings"
+          onClick={() => setSidebarOpen(false)}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+              isActive
+                ? "bg-magenta/15 text-magenta"
+                : "text-foreground-muted hover:text-foreground hover:bg-surface-hover"
+            }`
+          }
+        >
+          <UserCircle className="w-4 h-4 shrink-0" />
+          <span>Admin</span>
+        </NavLink>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors w-full"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <FilterProvider>
       <div className="flex h-screen bg-ink">
-        <aside className="shrink-0 w-56 h-screen bg-charcoal border-r border-border flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-14 px-3 border-b border-border shrink-0">
-            <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="h-8" />
-          </div>
-
-          <div className="flex-1 py-3 space-y-2 overflow-y-auto">
-            <SidebarGroup label="Content" items={CONTENT_NAV} />
-            <div className="mx-4 border-t border-border" />
-            <SidebarGroup label="Events" items={EVENTS_NAV} />
-          </div>
-
-          <div className="border-t border-border py-3 px-3 space-y-1 shrink-0">
-            <a
-              href="/"
-              target="_blank"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-            >
-              <ExternalLink className="w-4 h-4 shrink-0" />
-              <span>View Site</span>
-            </a>
-            <NavLink
-              to="/admin/settings"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  isActive
-                    ? "bg-magenta/15 text-magenta"
-                    : "text-foreground-muted hover:text-foreground hover:bg-surface-hover"
-                }`
-              }
-            >
-              <UserCircle className="w-4 h-4 shrink-0" />
-              <span>Admin</span>
-            </NavLink>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-colors w-full"
-            >
-              <LogOut className="w-4 h-4 shrink-0" />
-              <span>Logout</span>
-            </button>
-          </div>
+        {/* Desktop sidebar — hidden on mobile */}
+        <aside className="hidden md:flex shrink-0 w-56 h-screen bg-charcoal border-r border-border flex-col overflow-hidden">
+          {sidebarContent}
         </aside>
 
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+            <aside className="absolute left-0 top-0 bottom-0 w-64 bg-charcoal border-r border-border flex flex-col overflow-hidden animate-[slideInLeft_0.2s_ease-out]">
+              {sidebarContent}
+            </aside>
+          </div>
+        )}
+
         <div className="flex-1 flex flex-col min-w-0 h-screen">
-          <TopBar userName={userName} userEmail={userEmail} userRole={role} onEmailChange={onEmailChange} />
+          <TopBar userName={userName} userEmail={userEmail} userRole={role} onEmailChange={onEmailChange} onMenuToggle={() => setSidebarOpen(true)} />
           <MainContent />
         </div>
+
+        {/* Mobile bottom nav */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-charcoal/95 backdrop-blur-sm border-t border-border">
+          <div className="flex items-center justify-around h-14">
+            {BOTTOM_NAV.map(({ to, icon: Icon, label, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  `flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-medium transition-colors min-w-[48px] ${
+                    isActive ? "text-magenta" : "text-foreground-muted"
+                  }`
+                }
+              >
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+              </NavLink>
+            ))}
+          </div>
+        </nav>
       </div>
     </FilterProvider>
   );

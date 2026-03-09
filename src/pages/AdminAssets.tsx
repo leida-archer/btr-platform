@@ -189,7 +189,7 @@ export default function AdminAssets() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6">
         {[
           { label: "Total", value: stats.total, color: "#FFF8F0" },
           { label: "Images", value: stats.images, color: "#E1306C" },
@@ -206,7 +206,7 @@ export default function AdminAssets() {
 
       <div className="bg-surface border border-border rounded-xl p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="relative flex-1 min-w-[160px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
             <input type="text" placeholder="Search assets..." value={search} onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-ink/50 border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta" />
@@ -233,7 +233,7 @@ export default function AdminAssets() {
               />
             </div>
           )}
-          <div className="flex items-center gap-1 ml-auto shrink-0">
+          <div className="flex items-center gap-1 ml-auto shrink-0 overflow-x-auto">
             <Filter className="w-4 h-4 text-foreground-muted" />
             {["all", "image", "video", "document", "audio"].map((t) => (
               <button key={t} onClick={() => setFilterType(t)}
@@ -253,7 +253,7 @@ export default function AdminAssets() {
       </div>
 
       {view === "grid" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filtered.map((asset) => {
             const tc = typeConfig[asset.type];
             const TypeIcon = tc.icon;

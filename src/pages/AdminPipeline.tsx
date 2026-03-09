@@ -121,11 +121,11 @@ export default function AdminPipeline() {
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex flex-col sm:flex-row gap-4 sm:overflow-x-auto pb-4">
         {STAGE_CONFIG.map(({ key, label, color }) => (
           <div
             key={key}
-            className="min-w-[240px] w-[240px] shrink-0"
+            className="w-full sm:min-w-[240px] sm:w-[240px] sm:shrink-0"
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => handleDrop(key)}
           >

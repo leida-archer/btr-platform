@@ -123,7 +123,7 @@ export default function EditPostModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+      <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
@@ -338,7 +338,7 @@ export default function EditPostModal({
       {showAssetPicker && availableAssets && (
         <div className="fixed inset-0 z-[55] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={() => setShowAssetPicker(false)} />
-          <div className="relative bg-surface border border-border rounded-xl w-full max-w-xl max-h-[80vh] flex flex-col">
+          <div className="relative bg-surface border border-border rounded-xl w-full max-w-xl max-h-[80vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
               <h3 className="font-heading text-sm font-semibold">Select Assets</h3>
