@@ -21,6 +21,7 @@ export default function AdminAssets() {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterEvent, setFilterEvent] = useState<string>("all");
+  const [filterPost, setFilterPost] = useState<string>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,11 +48,41 @@ export default function AdminAssets() {
     return Array.from(names).sort();
   }, [campaigns, posts]);
 
+  // Build asset→post mapping (posts have linkedAssetIds)
+  const assetPostMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    for (const post of posts) {
+      for (const assetId of post.linkedAssetIds) {
+        if (!map.has(assetId)) map.set(assetId, new Set());
+        map.get(assetId)!.add(post.id);
+      }
+    }
+    return map;
+  }, [posts]);
+
+  // Posts filtered by selected event
+  const postOptions = useMemo(() => {
+    if (filterEvent === "all") return [];
+    return posts
+      .filter((p) => p.event === filterEvent)
+      .map((p) => ({ value: p.id, label: p.title }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [posts, filterEvent]);
+
+  const handleEventChange = (val: string) => {
+    setFilterEvent(val);
+    setFilterPost("all");
+  };
+
   const filtered = assets.filter((a) => {
     if (filterType !== "all" && a.type !== filterType) return false;
     if (filterEvent !== "all") {
       const events = assetEventMap.get(a.id);
       if (!events || !events.has(filterEvent)) return false;
+    }
+    if (filterPost !== "all") {
+      const postIds = assetPostMap.get(a.id);
+      if (!postIds || !postIds.has(filterPost)) return false;
     }
     if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.tags.some((t) => t.includes(search.toLowerCase()))) return false;
     return true;
@@ -87,13 +118,13 @@ export default function AdminAssets() {
 
         // 2. Upload directly from browser to Vercel Blob (no size limit)
         const blob = await put(f.name, f, {
-          access: "private",
+          access: "public",
           token: clientToken,
           multipart: f.size > 4 * 1024 * 1024, // use multipart for files > 4MB
         });
 
-        // 3. Build proxy URL for viewing (routes through our GET handler)
-        thumbnail = `/api/upload?url=${encodeURIComponent(blob.url)}`;
+        // 3. Use public blob URL directly (no proxy needed)
+        thumbnail = blob.url;
       } catch (err) {
         console.error("Upload failed:", err);
       }
@@ -132,11 +163,11 @@ export default function AdminAssets() {
       if (!tokenRes.ok) throw new Error("Failed to get upload token");
       const { clientToken } = await tokenRes.json();
       const blob = await put(file.name, file, {
-        access: "private",
+        access: "public",
         token: clientToken,
         multipart: file.size > 4 * 1024 * 1024,
       });
-      thumbnail = `/api/upload?url=${encodeURIComponent(blob.url)}`;
+      thumbnail = blob.url;
     } catch (err) {
       console.error("Replace upload failed:", err);
     }
@@ -174,21 +205,31 @@ export default function AdminAssets() {
       </div>
 
       <div className="bg-surface border border-border rounded-xl p-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="relative w-[576px] shrink-0">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[200px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
             <input type="text" placeholder="Search assets..." value={search} onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-ink/50 border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta" />
           </div>
           {eventOptions.length > 0 && (
-            <div className="flex items-center gap-1.5 w-52 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <Calendar className="w-4 h-4 text-foreground-muted shrink-0" />
               <Dropdown
                 label=""
                 options={[{ value: "all", label: "All Events" }, ...eventOptions.map((e) => ({ value: e, label: e }))]}
                 value={filterEvent}
-                onChange={setFilterEvent}
-                fullWidth
+                onChange={handleEventChange}
+              />
+            </div>
+          )}
+          {filterEvent !== "all" && postOptions.length > 0 && (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <FileText className="w-4 h-4 text-foreground-muted shrink-0" />
+              <Dropdown
+                label=""
+                options={[{ value: "all", label: "All Posts" }, ...postOptions]}
+                value={filterPost}
+                onChange={setFilterPost}
               />
             </div>
           )}

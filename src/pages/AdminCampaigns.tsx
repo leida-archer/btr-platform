@@ -1,11 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Plus, MapPin, Calendar, Users, DollarSign, ChevronRight, ChevronLeft, BarChart3, X, Trash2, Image, Film, FileText, Music, Pencil } from "lucide-react";
+import { Plus, MapPin, Calendar, Users, DollarSign, ChevronRight, ChevronLeft, BarChart3, X, Trash2, Image, Film, FileText, Music, Pencil, LayoutGrid, List } from "lucide-react";
 import Dropdown from "../components/Dropdown";
 import EditPostModal, { type PostData, type AssetOption } from "../components/EditPostModal";
 import EditAssetModal from "../components/EditAssetModal";
 import { useData } from "../context/DataContext";
 import { useIsViewer } from "../context/RoleContext";
-import type { Campaign, Post, PostStatus, CampaignStatus, Asset, AssetType } from "../types/data";
+import type { Campaign, CampaignType, Post, PostStatus, CampaignStatus, Asset, AssetType } from "../types/data";
 
 const statusConfig = {
   active: { label: "Active", color: "#22C55E", bg: "rgba(34,197,94,0.15)" },
@@ -146,10 +146,14 @@ export default function AdminCampaigns() {
 
   const [view, setView] = useState<"list" | "detail">("list");
   const [activeId, setActiveId] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<"all" | CampaignType>("all");
+  const [postStageFilter, setPostStageFilter] = useState<"all" | PostStatus>("all");
+  const [assetViewMode, setAssetViewMode] = useState<"grid" | "list">("grid");
 
   // New campaign modal
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<CampaignType>("event");
   const [newDate, setNewDate] = useState("");
   const [newCity, setNewCity] = useState("");
   const [newHeadcount, setNewHeadcount] = useState(100);
@@ -197,19 +201,28 @@ export default function AdminCampaigns() {
   // ── Campaign CRUD ──
   const openNewCampaign = () => {
     setShowNewCampaign(true);
-    setNewName(""); setNewDate(""); setNewCity(""); setNewHeadcount(100); setNewBudget(5000);
+    setNewName(""); setNewType("event"); setNewDate(""); setNewCity(""); setNewHeadcount(100); setNewBudget(5000);
   };
 
   const createCampaign = () => {
     if (!newName.trim()) return;
-    const displayDate = dateToDisplay(newDate) || newDate;
-    const nc = addCampaign({
-      name: newName, date: displayDate, venue: "TBD", city: newCity,
-      status: "planning", headcount: newHeadcount, budget: newBudget, ticketsSold: 0,
-      ticketGoal: newHeadcount,
-    });
-    setShowNewCampaign(false);
-    openCampaign(nc);
+    if (newType === "growth") {
+      const nc = addCampaign({
+        name: newName, type: "growth", date: "", venue: "", city: "",
+        status: "planning", headcount: 0, budget: 0, ticketsSold: 0, ticketGoal: 0,
+      });
+      setShowNewCampaign(false);
+      openCampaign(nc);
+    } else {
+      const displayDate = dateToDisplay(newDate) || newDate;
+      const nc = addCampaign({
+        name: newName, type: "event", date: displayDate, venue: "TBD", city: newCity,
+        status: "planning", headcount: newHeadcount, budget: newBudget, ticketsSold: 0,
+        ticketGoal: newHeadcount,
+      });
+      setShowNewCampaign(false);
+      openCampaign(nc);
+    }
   };
 
   const openEditModal = (c: Campaign) => {
@@ -240,11 +253,13 @@ export default function AdminCampaigns() {
   // ── Post CRUD ──
   const handleSavePost = (updated: PostData) => {
     if (!editingPost) return;
+    const matched = campaigns.find((c) => c.name === updated.event);
     updatePost(editingPost.id, {
       title: updated.title, platform: updated.platform, postType: updated.postType,
       status: updated.status as PostStatus, priority: updated.priority, assignee: updated.assignee,
       event: updated.event, scheduledDate: updated.scheduledDate, scheduledTime: updated.scheduledTime,
       caption: updated.caption, notes: updated.notes, tags: updated.tags, linkedAssetIds: updated.linkedAssetIds,
+      campaignId: matched?.id ?? null,
     });
     setEditingPost(null);
   };
@@ -288,6 +303,8 @@ export default function AdminCampaigns() {
 
   // ── Campaign Edit Modal ──
   function renderCampaignEditModal() {
+    const editingCampaign = campaigns.find((c) => c.id === editingId);
+    const isEvent = editingCampaign?.type !== "growth";
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={() => setEditingId(null)} />
@@ -300,50 +317,57 @@ export default function AdminCampaigns() {
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Name</label>
               <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} />
+              <p className="text-[10px] text-foreground-muted mt-1">{isEvent ? "Event Marketing" : "Growth Marketing"} — campaign type cannot be changed</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
-                <input type="text" value={editDate} onChange={(e) => setEditDate(formatDateInput(e.target.value))} placeholder="MM/DD/YYYY" maxLength={10} className={inputClass} />
-              </div>
+              {isEvent && (
+                <div>
+                  <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
+                  <input type="text" value={editDate} onChange={(e) => setEditDate(formatDateInput(e.target.value))} placeholder="MM/DD/YYYY" maxLength={10} className={inputClass} />
+                </div>
+              )}
               <div>
                 <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Status</label>
                 <Dropdown label="Status" options={CAMPAIGN_STATUS_OPTIONS} value={editStatus} onChange={(v) => setEditStatus(v as CampaignStatus)} fullWidth />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Venue</label>
-                <input type="text" value={editVenue} onChange={(e) => setEditVenue(e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">City</label>
-                <CityInput value={editCity} onChange={setEditCity} className={inputClass} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
-                <input type="number" value={editHeadcount} onChange={(e) => setEditHeadcount(+e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Budget</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted pointer-events-none">$</span>
-                  <input type="number" value={editBudget} onChange={(e) => setEditBudget(+e.target.value)} className={inputClass + " pl-7"} />
+            {isEvent && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Venue</label>
+                    <input type="text" value={editVenue} onChange={(e) => setEditVenue(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">City</label>
+                    <CityInput value={editCity} onChange={setEditCity} className={inputClass} />
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Tickets Sold</label>
-                <input type="number" value={editTicketsSold} onChange={(e) => setEditTicketsSold(+e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Ticket Goal</label>
-                <input type="number" value={editTicketGoal} onChange={(e) => setEditTicketGoal(+e.target.value)} className={inputClass} />
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
+                    <input type="number" value={editHeadcount} onChange={(e) => setEditHeadcount(+e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Budget</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted pointer-events-none">$</span>
+                      <input type="number" value={editBudget} onChange={(e) => setEditBudget(+e.target.value)} className={inputClass + " pl-7"} />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Tickets Sold</label>
+                    <input type="number" value={editTicketsSold} onChange={(e) => setEditTicketsSold(+e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Ticket Goal</label>
+                    <input type="number" value={editTicketGoal} onChange={(e) => setEditTicketGoal(+e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+              </>
+            )}
             <div className="flex gap-2 pt-2">
               <button onClick={saveEdit} className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
               <button onClick={handleDeleteCampaign} className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Delete campaign">
@@ -370,29 +394,39 @@ export default function AdminCampaigns() {
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Campaign Name</label>
               <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Be creative..." className={inputClass} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
-                <input type="text" value={newDate} onChange={(e) => setNewDate(formatDateInput(e.target.value))} placeholder="MM/DD/YYYY" maxLength={10} className={inputClass} />
-              </div>
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">City</label>
-                <CityInput value={newCity} onChange={setNewCity} className={inputClass} />
-              </div>
+            <div>
+              <Dropdown label="Campaign Type" options={[
+                { value: "event", label: "Event Marketing" },
+                { value: "growth", label: "Growth Marketing" },
+              ]} value={newType} onChange={(v) => setNewType(v as CampaignType)} fullWidth />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
-                <input type="number" value={newHeadcount} onChange={(e) => setNewHeadcount(+e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Budget</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted pointer-events-none">$</span>
-                  <input type="number" value={newBudget} onChange={(e) => setNewBudget(+e.target.value)} className={inputClass + " pl-7"} />
+            {newType === "event" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
+                    <input type="text" value={newDate} onChange={(e) => setNewDate(formatDateInput(e.target.value))} placeholder="MM/DD/YYYY" maxLength={10} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">City</label>
+                    <CityInput value={newCity} onChange={setNewCity} className={inputClass} />
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
+                    <input type="number" value={newHeadcount} onChange={(e) => setNewHeadcount(+e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Budget</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted pointer-events-none">$</span>
+                      <input type="number" value={newBudget} onChange={(e) => setNewBudget(+e.target.value)} className={inputClass + " pl-7"} />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setShowNewCampaign(false)} className="px-4 py-2 text-sm text-foreground-muted hover:text-foreground transition-colors">Cancel</button>
               <button onClick={createCampaign} className="bg-magenta hover:bg-magenta/90 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">Create Campaign</button>
@@ -424,40 +458,45 @@ export default function AdminCampaigns() {
           )}
         </div>
 
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-1">
           <h1 className="font-heading text-2xl font-bold">{active.name}</h1>
           <span className="text-[10px] px-2.5 py-1 rounded-full font-medium" style={{ backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
         </div>
+        <p className="text-xs text-foreground-muted mb-6">{active.type === "growth" ? "Growth Marketing" : "Event Marketing"}</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          {[
-            { icon: Calendar, label: "Date", value: active.date },
-            { icon: MapPin, label: "Venue", value: `${active.venue} — ${active.city}` },
-            { icon: Users, label: "Capacity", value: String(active.headcount) },
-            { icon: DollarSign, label: "Budget", value: `$${active.budget.toLocaleString()}` },
-          ].map((s) => (
-            <div key={s.label} className="bg-surface border border-border rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <s.icon className="w-3.5 h-3.5 text-foreground-muted" />
-                <span className="text-xs text-foreground-muted">{s.label}</span>
+        {active.type !== "growth" && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            {[
+              { icon: Calendar, label: "Date", value: active.date },
+              { icon: MapPin, label: "Venue", value: `${active.venue} — ${active.city}` },
+              { icon: Users, label: "Capacity", value: String(active.headcount) },
+              { icon: DollarSign, label: "Budget", value: `$${active.budget.toLocaleString()}` },
+            ].map((s) => (
+              <div key={s.label} className="bg-surface border border-border rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <s.icon className="w-3.5 h-3.5 text-foreground-muted" />
+                  <span className="text-xs text-foreground-muted">{s.label}</span>
+                </div>
+                <p className="text-sm font-medium">{s.value}</p>
               </div>
-              <p className="text-sm font-medium">{s.value}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-surface border border-border rounded-xl p-5">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Ticket Sales</h3>
-            <div className="flex items-end justify-between mb-2">
-              <span className="font-heading text-3xl font-bold gradient-text">{active.ticketsSold}</span>
-              <span className="text-sm text-foreground-muted">/ {active.ticketGoal}</span>
-            </div>
-            <div className="h-2 rounded-full bg-ink overflow-hidden mb-1">
-              <div className="h-full rounded-full transition-all" style={{ width: `${ticketPct}%`, background: "linear-gradient(90deg, #D6246E, #F2A922)" }} />
-            </div>
-            <p className="text-xs text-foreground-muted">{ticketPct}% of goal</p>
+            ))}
           </div>
+        )}
+
+        <div className={`grid grid-cols-1 ${active.type !== "growth" ? "sm:grid-cols-2" : ""} gap-4 mb-6`}>
+          {active.type !== "growth" && (
+            <div className="bg-surface border border-border rounded-xl p-5">
+              <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Ticket Sales</h3>
+              <div className="flex items-end justify-between mb-2">
+                <span className="font-heading text-3xl font-bold gradient-text">{active.ticketsSold}</span>
+                <span className="text-sm text-foreground-muted">/ {active.ticketGoal}</span>
+              </div>
+              <div className="h-2 rounded-full bg-ink overflow-hidden mb-1">
+                <div className="h-full rounded-full transition-all" style={{ width: `${ticketPct}%`, background: "linear-gradient(90deg, #D6246E, #F2A922)" }} />
+              </div>
+              <p className="text-xs text-foreground-muted">{ticketPct}% of goal</p>
+            </div>
+          )}
           <div className="bg-surface border border-border rounded-xl p-5">
             <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Content Progress</h3>
             <div className="flex items-end justify-between mb-2">
@@ -479,10 +518,18 @@ export default function AdminCampaigns() {
 
         {/* Posts */}
         <div className="mb-6">
-          <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Linked Posts ({campaignPosts.length})</h2>
-          {campaignPosts.length > 0 ? (
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted">Linked Posts ({campaignPosts.length})</h2>
+            <Dropdown label="Stage" options={[
+              { value: "all", label: "All Stages" },
+              ...POST_STATUS_OPTIONS.map((s) => ({ value: s.key, label: s.label })),
+            ]} value={postStageFilter} onChange={(v) => setPostStageFilter(v as "all" | PostStatus)} />
+          </div>
+          {(() => {
+            const filtered = postStageFilter === "all" ? campaignPosts : campaignPosts.filter((p) => p.status === postStageFilter);
+            return filtered.length > 0 ? (
             <div className="bg-surface border border-border rounded-xl overflow-hidden">
-              {campaignPosts.map((post, i) => {
+              {filtered.map((post, i) => {
                 const ps = postStatusConfig[post.status];
                 return (
                   <div key={post.id} onClick={() => setEditingPost(post)}
@@ -503,34 +550,79 @@ export default function AdminCampaigns() {
             </div>
           ) : (
             <div className="bg-surface border border-border rounded-xl p-8 text-center">
-              <p className="text-sm text-foreground-muted">No posts linked to this campaign yet</p>
+              <p className="text-sm text-foreground-muted">{postStageFilter === "all" ? "No posts linked to this campaign yet" : "No posts in this stage"}</p>
             </div>
-          )}
+          );
+          })()}
         </div>
 
         {/* Assets */}
         <div>
-          <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Linked Assets ({campaignAssets.length})</h2>
-          {campaignAssets.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-              {campaignAssets.map((asset) => {
-                const tc = assetTypeConfig[asset.type];
-                const TypeIcon = tc.icon;
-                return (
-                  <div key={asset.id} onClick={() => setEditingAsset(asset)}
-                    className="bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-magenta/30 transition-colors">
-                    <div className="aspect-square bg-ink/50 flex items-center justify-center overflow-hidden">
-                      {asset.thumbnail ? <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
-                        : <TypeIcon className="w-8 h-8" style={{ color: tc.color, opacity: 0.5 }} />}
-                    </div>
-                    <div className="p-2">
-                      <p className="text-xs font-medium truncate">{asset.name}</p>
-                      <span className="text-[10px] text-foreground-muted">{asset.type}</span>
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted">Linked Assets ({campaignAssets.length})</h2>
+            <div className="flex items-center border border-border rounded-lg overflow-hidden">
+              <button onClick={() => setAssetViewMode("grid")}
+                className={`p-1.5 transition-colors ${assetViewMode === "grid" ? "bg-magenta/20 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => setAssetViewMode("list")}
+                className={`p-1.5 transition-colors ${assetViewMode === "list" ? "bg-magenta/20 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+                <List className="w-3.5 h-3.5" />
+              </button>
             </div>
+          </div>
+          {campaignAssets.length > 0 ? (
+            assetViewMode === "grid" ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                {campaignAssets.map((asset) => {
+                  const tc = assetTypeConfig[asset.type];
+                  const TypeIcon = tc.icon;
+                  return (
+                    <div key={asset.id} onClick={() => setEditingAsset(asset)}
+                      className="bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-magenta/30 transition-colors">
+                      <div className="aspect-square bg-ink/50 flex items-center justify-center overflow-hidden relative">
+                        {asset.thumbnail && asset.type === "video" ? (
+                          <video src={asset.thumbnail} className="w-full h-full object-cover" muted playsInline />
+                        ) : asset.thumbnail ? (
+                          <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <TypeIcon className="w-8 h-8" style={{ color: tc.color, opacity: 0.5 }} />
+                        )}
+                      </div>
+                      <div className="p-2">
+                        <p className="text-xs font-medium truncate">{asset.name}</p>
+                        <span className="text-[10px] text-foreground-muted">{asset.type}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="bg-surface border border-border rounded-xl overflow-hidden">
+                {campaignAssets.map((asset, i) => {
+                  const tc = assetTypeConfig[asset.type];
+                  const TypeIcon = tc.icon;
+                  return (
+                    <div key={asset.id} onClick={() => setEditingAsset(asset)}
+                      className={`flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-ink/30 transition-colors ${i > 0 ? "border-t border-border" : ""}`}>
+                      <div className="w-10 h-10 rounded-lg bg-ink/50 flex items-center justify-center overflow-hidden shrink-0">
+                        {asset.thumbnail && asset.type === "video" ? (
+                          <video src={asset.thumbnail} className="w-full h-full object-cover" muted playsInline />
+                        ) : asset.thumbnail ? (
+                          <img src={asset.thumbnail} alt={asset.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <TypeIcon className="w-5 h-5" style={{ color: tc.color, opacity: 0.5 }} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{asset.name}</p>
+                        <span className="text-[10px] text-foreground-muted">{asset.type}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
           ) : (
             <div className="bg-surface border border-border rounded-xl p-8 text-center">
               <p className="text-sm text-foreground-muted">No assets linked to this campaign yet</p>
@@ -577,7 +669,14 @@ export default function AdminCampaigns() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-        <h1 className="font-heading text-2xl font-bold">Campaigns</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="font-heading text-2xl font-bold">Campaigns</h1>
+          <Dropdown label="Type" options={[
+            { value: "all", label: "All Types" },
+            { value: "event", label: "Event Marketing" },
+            { value: "growth", label: "Growth Marketing" },
+          ]} value={typeFilter} onChange={(v) => setTypeFilter(v as "all" | CampaignType)} />
+        </div>
         {!isViewer && (
           <button onClick={openNewCampaign}
             className="flex items-center gap-2 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0">
@@ -587,7 +686,7 @@ export default function AdminCampaigns() {
       </div>
 
       <div className="space-y-3">
-        {campaigns.map((c) => {
+        {campaigns.filter((c) => typeFilter === "all" || c.type === typeFilter).map((c) => {
           const cs = statusConfig[c.status];
           const cPosts = getPostsByCampaign(c.id);
           const postedCount = cPosts.filter((p) => p.status === "posted").length;
@@ -602,16 +701,16 @@ export default function AdminCampaigns() {
                     <span className="text-[10px] px-2.5 py-1 rounded-full font-medium shrink-0" style={{ backgroundColor: cs.bg, color: cs.color }}>{cs.label}</span>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-foreground-muted flex-wrap">
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{c.date}</span>
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.city}</span>
-                    <span className="flex items-center gap-1"><Users className="w-3 h-3" />{c.headcount} cap</span>
+                    {c.type !== "growth" && c.date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{c.date}</span>}
+                    {c.type !== "growth" && c.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.city}</span>}
+                    {c.type !== "growth" && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{c.headcount} cap</span>}
                     <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" />{postedCount}/{cPosts.length} posts</span>
                     <span className="flex items-center gap-1"><Image className="w-3 h-3" />{cAssets.length} assets</span>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 shrink-0 text-foreground-muted/30" />
               </div>
-              {c.ticketGoal > 0 && (
+              {c.type !== "growth" && c.ticketGoal > 0 && (
                 <div className="mt-4">
                   <div className="flex justify-between text-xs text-foreground-muted mb-1">
                     <span>Tickets: {c.ticketsSold} / {c.ticketGoal}</span>

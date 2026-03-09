@@ -5,8 +5,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Swap to "team@beyondtherhythm.org" once domain is verified in Resend
-const FROM_EMAIL = "Beyond the Rhythm <onboarding@resend.dev>";
+const FROM_EMAIL = "Beyond the Rhythm <team@beyondtherhythm.org>";
 
 function getCallerRole(req: VercelRequest): string | null {
   const secret = process.env.AUTH_SECRET;

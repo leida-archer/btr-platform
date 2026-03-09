@@ -190,7 +190,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     markMutation();
     const tempId = `temp-${Date.now()}`;
     const optimistic = { ...a, id: tempId } as Asset;
-    setAssets((prev) => [optimistic, ...prev]);
+    setAssets((prev) => [...prev, optimistic]);
     fetch("/api/assets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -252,8 +252,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // ── Derived helpers ──
   const getPostsByCampaign = useCallback(
-    (campaignId: string) => posts.filter((p) => p.campaignId === campaignId),
-    [posts]
+    (campaignId: string) => {
+      const campaign = campaigns.find((c) => c.id === campaignId);
+      return posts.filter(
+        (p) => p.campaignId === campaignId || (campaign && p.event === campaign.name && p.event !== "")
+      );
+    },
+    [posts, campaigns]
   );
 
   const getPostsByStatus = useCallback(
@@ -263,11 +268,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const getAssetsByCampaign = useCallback(
     (campaignId: string) => {
-      const campaignPosts = posts.filter((p) => p.campaignId === campaignId);
-      const assetIds = new Set(campaignPosts.flatMap((p) => p.linkedAssetIds));
+      const campaign = campaigns.find((c) => c.id === campaignId);
+      const cPosts = posts.filter(
+        (p) => p.campaignId === campaignId || (campaign && p.event === campaign.name && p.event !== "")
+      );
+      const assetIds = new Set(cPosts.flatMap((p) => p.linkedAssetIds));
       return assets.filter((a) => assetIds.has(a.id));
     },
-    [posts, assets]
+    [posts, assets, campaigns]
   );
 
   const getCampaignNames = useCallback(

@@ -57,10 +57,8 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
   const handleDownload = async () => {
     const url = asset.thumbnail;
     if (!url) return;
-    // Append download flag so proxy sets Content-Disposition: attachment
-    const dlUrl = url.includes("?") ? `${url}&download=1` : `${url}?download=1`;
     try {
-      const resp = await fetch(dlUrl);
+      const resp = await fetch(url);
       const blob = await resp.blob();
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");

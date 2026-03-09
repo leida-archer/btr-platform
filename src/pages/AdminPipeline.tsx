@@ -72,11 +72,13 @@ export default function AdminPipeline() {
 
   const handleSaveEdit = (updated: PostData) => {
     if (!editing) return;
+    const matched = campaigns.find((c) => c.name === updated.event);
     updatePost(editing.id, {
       title: updated.title, platform: updated.platform, postType: updated.postType,
       status: updated.status as PostStatus, priority: updated.priority, assignee: updated.assignee,
       event: updated.event, scheduledDate: updated.scheduledDate, scheduledTime: updated.scheduledTime,
       caption: updated.caption, notes: updated.notes, tags: updated.tags, linkedAssetIds: updated.linkedAssetIds,
+      campaignId: matched?.id ?? null,
     });
     setEditing(null);
   };
@@ -89,11 +91,13 @@ export default function AdminPipeline() {
 
   const handleCreatePost = (data: PostData) => {
     if (!data.title.trim()) return;
+    const matched = campaigns.find((c) => c.name === data.event);
     addPost({
       title: data.title, platform: data.platform, postType: data.postType,
       status: data.status as PostStatus, priority: data.priority, assignee: data.assignee,
       event: data.event, scheduledDate: data.scheduledDate, scheduledTime: data.scheduledTime,
       caption: data.caption, notes: data.notes, tags: data.tags, linkedAssetIds: data.linkedAssetIds,
+      campaignId: matched?.id ?? null,
     });
     setShowNew(false);
   };

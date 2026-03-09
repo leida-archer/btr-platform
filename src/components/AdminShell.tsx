@@ -204,8 +204,8 @@ function TopBar({ userName, userEmail, userRole, onEmailChange }: { userName: st
   let flatIdx = -1;
 
   return (
-    <header className="sticky top-0 z-30 bg-ink/80 backdrop-blur-sm border-b border-border">
-      <div className="flex items-center h-14 px-6">
+    <header className="sticky top-0 z-30 bg-ink/80 backdrop-blur-sm border-b border-border h-14 shrink-0">
+      <div className="flex items-center h-full px-6">
         <div ref={wrapperRef} className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted pointer-events-none" />
           <input
@@ -382,7 +382,7 @@ function SearchResultsPage() {
 function MainContent() {
   const { searchQuery } = useFilters();
   return (
-    <main className="flex-1 overflow-auto p-6">
+    <main className="flex-1 overflow-y-scroll p-6">
       {searchQuery ? <SearchResultsPage /> : <Outlet />}
     </main>
   );

@@ -4,7 +4,7 @@ import { prisma } from "../../lib/prisma.js";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = "Beyond the Rhythm <onboarding@resend.dev>";
+const FROM_EMAIL = "Beyond the Rhythm <team@beyondtherhythm.org>";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {

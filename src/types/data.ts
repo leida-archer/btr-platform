@@ -32,12 +32,15 @@ export interface Post {
   notes: string;
   tags: string[];
   linkedAssetIds: string[];
-  campaignId?: string;
+  campaignId?: string | null;
 }
+
+export type CampaignType = "event" | "growth";
 
 export interface Campaign {
   id: string;
   name: string;
+  type: CampaignType;
   date: string;
   venue: string;
   city: string;
