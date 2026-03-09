@@ -58,16 +58,18 @@ export default function LandingPage() {
       {/* NAV */}
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
+          <div className="pub-nav__left">
+            <a href="#tickets" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
+          </div>
           <a href="#" className="pub-nav__logo">
             <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
-            <img src="/logos/logo-on-dark-stacked.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--stacked" />
+            <img src="/logos/logo-on-darkv2.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--stacked" />
           </a>
           <ul className="pub-nav__links">
             <li><a href="#events" className="pub-nav__link">Events</a></li>
             <li><a href="#about" className="pub-nav__link">About</a></li>
             <li><a href="#gallery" className="pub-nav__link">Gallery</a></li>
           </ul>
-          <a href="#tickets" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
           <div className="pub-nav__right">
             <a href="#tickets" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
             <Link to="/login" className="pub-nav__team">Team</Link>
