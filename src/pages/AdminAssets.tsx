@@ -241,14 +241,25 @@ export default function AdminAssets() {
                 {t === "all" ? "All" : t.charAt(0).toUpperCase() + t.slice(1) + "s"}
               </button>
             ))}
-            <span className="w-px h-5 bg-border mx-1" />
-            <button onClick={() => setView("grid")} className={`p-2 rounded-lg transition-colors ${view === "grid" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+            {/* Desktop: view toggle inline */}
+            <span className="hidden sm:block w-px h-5 bg-border mx-1" />
+            <button onClick={() => setView("grid")} className={`hidden sm:block p-2 rounded-lg transition-colors ${view === "grid" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
               <Grid className="w-4 h-4" />
             </button>
-            <button onClick={() => setView("list")} className={`p-2 rounded-lg transition-colors ${view === "list" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+            <button onClick={() => setView("list")} className={`hidden sm:block p-2 rounded-lg transition-colors ${view === "list" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
               <List className="w-4 h-4" />
             </button>
           </div>
+        </div>
+        {/* Mobile: view toggle on separate row */}
+        <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border sm:hidden">
+          <span className="text-xs text-foreground-muted mr-auto">View</span>
+          <button onClick={() => setView("grid")} className={`p-2 rounded-lg transition-colors ${view === "grid" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+            <Grid className="w-4 h-4" />
+          </button>
+          <button onClick={() => setView("list")} className={`p-2 rounded-lg transition-colors ${view === "list" ? "bg-magenta/15 text-magenta" : "text-foreground-muted hover:text-foreground"}`}>
+            <List className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

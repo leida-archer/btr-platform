@@ -151,7 +151,7 @@ export default function EditPostModal({
           </div>
 
           {/* Platform + Post Type */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Platform</label>
               <Dropdown label="Platform" options={PLATFORM_OPTIONS} value={platform} onChange={setPlatform} fullWidth disabled={readOnly} />
@@ -163,7 +163,7 @@ export default function EditPostModal({
           </div>
 
           {/* Stage + Priority */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Stage</label>
               <Dropdown label="Stage" options={statusDropdownOptions} value={status} onChange={setStatus} fullWidth disabled={readOnly} />
@@ -175,7 +175,7 @@ export default function EditPostModal({
           </div>
 
           {/* Assignee + Event */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Assignee</label>
               <Dropdown label="Assignee" options={ASSIGNEE_OPTIONS} value={assignee} onChange={setAssignee} fullWidth disabled={readOnly} />
@@ -187,7 +187,7 @@ export default function EditPostModal({
           </div>
 
           {/* Scheduled Date + Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Scheduled Date</label>
               <input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className={inputClass + " [color-scheme:dark]"} disabled={readOnly} />

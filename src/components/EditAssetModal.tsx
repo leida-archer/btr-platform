@@ -122,7 +122,7 @@ export default function EditAssetModal({ asset, onSave, onDelete, onClose, onRep
           </div>
 
           {/* Type + Meta */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Type</label>
               <Dropdown label="Type" options={TYPE_OPTIONS} value={type} onChange={(v) => setType(v as AssetData["type"])} fullWidth disabled={readOnly} />

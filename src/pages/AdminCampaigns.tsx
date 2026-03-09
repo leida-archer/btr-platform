@@ -319,7 +319,7 @@ export default function AdminCampaigns() {
               <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} />
               <p className="text-[10px] text-foreground-muted mt-1">{isEvent ? "Event Marketing" : "Growth Marketing"} — campaign type cannot be changed</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {isEvent && (
                 <div>
                   <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
@@ -333,7 +333,7 @@ export default function AdminCampaigns() {
             </div>
             {isEvent && (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Venue</label>
                     <input type="text" value={editVenue} onChange={(e) => setEditVenue(e.target.value)} className={inputClass} />
@@ -343,7 +343,7 @@ export default function AdminCampaigns() {
                     <CityInput value={editCity} onChange={setEditCity} className={inputClass} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
                     <input type="number" value={editHeadcount} onChange={(e) => setEditHeadcount(+e.target.value)} className={inputClass} />
@@ -356,7 +356,7 @@ export default function AdminCampaigns() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Tickets Sold</label>
                     <input type="number" value={editTicketsSold} onChange={(e) => setEditTicketsSold(+e.target.value)} className={inputClass} />
@@ -402,7 +402,7 @@ export default function AdminCampaigns() {
             </div>
             {newType === "event" && (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Date</label>
                     <input type="text" value={newDate} onChange={(e) => setNewDate(formatDateInput(e.target.value))} placeholder="MM/DD/YYYY" maxLength={10} className={inputClass} />
@@ -412,7 +412,7 @@ export default function AdminCampaigns() {
                     <CityInput value={newCity} onChange={setNewCity} className={inputClass} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Headcount</label>
                     <input type="number" value={newHeadcount} onChange={(e) => setNewHeadcount(+e.target.value)} className={inputClass} />
