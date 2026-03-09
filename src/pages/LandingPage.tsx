@@ -59,7 +59,8 @@ export default function LandingPage() {
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
           <a href="#" className="pub-nav__logo">
-            <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img" />
+            <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
+            <img src="/logos/logo-on-dark-stacked.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--stacked" />
           </a>
           <ul className="pub-nav__links">
             <li><a href="#events" className="pub-nav__link">Events</a></li>
