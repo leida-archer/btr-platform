@@ -102,8 +102,8 @@ export default function LandingPage() {
           <Particles />
         </div>
         <div className="hero__content">
-          <img src="/logos/2d-primary-gradient-on-dark-tree.svg" alt="Beyond the Rhythm" className="hero__logo" />
-          <p className="hero__tagline">Where sound becomes feeling</p>
+          <img src="/logos/logo_gradient_ripple_tree_btr.svg" alt="Beyond the Rhythm" className="hero__logo" />
+          <p className="hero__tagline">The power of music has the power to heal</p>
           <div className="hero__actions">
             <a href="#events" className="btn btn--gradient">Explore Events</a>
             <a href="#about" className="btn btn--outline">Learn More</a>
@@ -150,16 +150,16 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="ticket-tiers">
-            <div className="ticket-card ticket-card--featured">
-              <span className="ticket-card__badge" style={{ background: "var(--grad-primary)", color: "#fff" }}>Early Bird</span>
+            <div className="ticket-card" style={{ opacity: 0.5 }}>
+              <span className="ticket-card__badge" style={{ background: "rgba(214,36,110,0.15)", color: "#d6246e" }}>Coming Soon</span>
               <h3 className="ticket-card__tier">General Admission</h3>
-              <div className="ticket-card__price gradient-text">$65</div>
-              <a href="#" className="btn btn--gradient" style={{ width: "100%" }}>Buy Now</a>
+              <div className="ticket-card__price gradient-text">TBD</div>
+              <span className="btn btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
             </div>
             <div className="ticket-card" style={{ opacity: 0.5 }}>
               <span className="ticket-card__badge" style={{ background: "rgba(214,36,110,0.15)", color: "#d6246e" }}>Coming Soon</span>
               <h3 className="ticket-card__tier">Standard</h3>
-              <div className="ticket-card__price gradient-text">$80</div>
+              <div className="ticket-card__price gradient-text">TBD</div>
               <span className="btn btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
             </div>
           </div>
@@ -175,12 +175,12 @@ export default function LandingPage() {
             <div className="event-card">
               <div className="event-card__image">
                 <img src="/images/venue/FIT_Social_Sunset.jpg" alt="BtR San Diego" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="event-card__status event-card__status--onsale">On Sale</span>
+                <span className="event-card__status event-card__status--onsale">Coming Soon</span>
               </div>
               <div className="event-card__body">
                 <h3 className="event-card__name">BtR San Diego</h3>
                 <p className="event-card__date">May 1, 2026 — FIT Social</p>
-                <a href="#tickets" className="btn btn--sm btn--outline" style={{ width: "100%" }}>Get Tickets</a>
+                <span className="btn btn--sm btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
               </div>
             </div>
           </div>
@@ -260,19 +260,19 @@ export default function LandingPage() {
           <p className="section-label" style={{ textAlign: "center" }}>Moments</p>
           <h2 className="section-title">Gallery</h2>
           <div className="gallery__grid">
-            <div className="gallery__item gallery__item--wide">
+            <div className="gallery__item">
               <img src="/images/gallery/IMG_9559.jpg" alt="Seattle 2025" />
               <div className="gallery__overlay"><span>Seattle 2025</span></div>
             </div>
-            <div className="gallery__item">
+            <div className="gallery__item gallery__item--wide">
               <img src="/images/gallery/IMG_9560.jpg" alt="Seattle 2025" />
               <div className="gallery__overlay"><span>Seattle 2025</span></div>
             </div>
-            <div className="gallery__item">
+            <div className="gallery__item gallery__item--wide">
               <img src="/images/gallery/IMG_9561.jpg" alt="Seattle 2025" />
               <div className="gallery__overlay"><span>Seattle 2025</span></div>
             </div>
-            <div className="gallery__item gallery__item--wide">
+            <div className="gallery__item">
               <img src="/images/gallery/IMG_9562.jpg" alt="Seattle 2025" />
               <div className="gallery__overlay"><span>Seattle 2025</span></div>
             </div>
@@ -280,7 +280,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* NEWSLETTER */}
+      {/* NEWSLETTER — hidden for now, re-enable when ready
       <section className="newsletter">
         <div className="container">
           <div className="newsletter__inner">
@@ -297,6 +297,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* FOOTER */}
       <footer className="pub-footer">
@@ -304,7 +305,7 @@ export default function LandingPage() {
           <div className="pub-footer__top">
             <div>
               <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-footer__logo" />
-              <p className="pub-footer__tagline">Where sound becomes feeling</p>
+              <p className="pub-footer__tagline">The power of music has the power to heal</p>
             </div>
             <div>
               <h4 className="pub-footer__heading">Explore</h4>

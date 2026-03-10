@@ -215,7 +215,7 @@
 .gallery__item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s var(--ease); }
 .gallery__item--wide { grid-column: span 2; aspect-ratio: 2/1; }
 .gallery__item:hover { transform: scale(1.02); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
-.gallery__item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery__item img { width: 100%; height: 100%; object-fit: cover; image-rendering: -webkit-optimize-contrast; filter: contrast(1.05) saturate(1.1); -webkit-filter: contrast(1.05) saturate(1.1); }
 .gallery__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(26,16,24,0.85) 100%); display: flex; align-items: flex-end; padding: 20px; opacity: 0; transition: opacity 0.3s var(--ease); }
 .gallery__item:hover .gallery__overlay { opacity: 1; }
 .gallery__overlay span { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; }
