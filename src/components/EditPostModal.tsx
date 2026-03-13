@@ -116,7 +116,11 @@ export default function EditPostModal({
 
   const linked = availableAssets?.filter((a) => linkedAssetIds.includes(a.id)) ?? [];
 
+  const [titleError, setTitleError] = useState(false);
+
   const handleSave = () => {
+    if (!title.trim()) { setTitleError(true); return; }
+    setTitleError(false);
     onSave({ title, platform, postType, status, priority, assignee, event, scheduledDate, scheduledTime, caption, notes, tags, linkedAssetIds });
   };
 
@@ -147,7 +151,8 @@ export default function EditPostModal({
           {/* Title */}
           <div>
             <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Title</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title..." className={inputClass} disabled={readOnly} />
+            <input type="text" value={title} onChange={(e) => { setTitle(e.target.value); if (titleError) setTitleError(false); }} placeholder="Post title..." className={inputClass + (titleError ? " ring-1 ring-red-500 border-red-500" : "")} disabled={readOnly} />
+            {titleError && <p className="text-xs text-red-500 mt-1">Title is required</p>}
           </div>
 
           {/* Platform + Post Type */}

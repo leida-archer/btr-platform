@@ -165,11 +165,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(p),
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to save post: ${r.status}`);
+        return r.json();
+      })
       .then((saved: Post) => {
         setPosts((prev) => prev.map((x) => (x.id === tempId ? saved : x)));
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        setPosts((prev) => prev.filter((x) => x.id !== tempId));
+      });
     return optimistic;
   }, []);
 
