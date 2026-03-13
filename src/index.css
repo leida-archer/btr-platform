@@ -281,8 +281,10 @@
   .newsletter__inner { padding: 40px 24px; text-align: center; }
   .newsletter__form { min-width: unset; width: 100%; }
   .newsletter__input-wrap { flex-direction: column; }
-  .pub-footer__top { grid-template-columns: 1fr; text-align: center; }
-  .pub-footer__socials { justify-content: center; }
+  .pub-footer__top { grid-template-columns: 1fr 1fr; text-align: left; }
+  .pub-footer__top > *:first-child { grid-column: 1 / -1; }
+  .pub-footer__top > *:last-child { grid-column: 1 / -1; }
+  .pub-footer__socials { justify-content: flex-start; }
 }
 @media (max-width: 640px) {
   .container { padding: 0 16px; }
