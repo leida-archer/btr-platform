@@ -248,11 +248,47 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
     );
   }
 
+  function NumInput({ value, onChange, className }: { value: number; onChange: (v: number) => void; className?: string }) {
+    const [raw, setRaw] = useState(value === 0 ? "" : String(value));
+    const committed = useRef(value);
+
+    // Sync if parent value changed externally (e.g. event switch)
+    useEffect(() => {
+      if (value !== committed.current) {
+        committed.current = value;
+        setRaw(value === 0 ? "" : String(value));
+      }
+    }, [value]);
+
+    const commit = (str: string) => {
+      const cleaned = str.replace(/[^0-9.]/g, "");
+      const parsed = parseFloat(cleaned);
+      const num = isNaN(parsed) ? 0 : parsed;
+      committed.current = num;
+      setRaw(num === 0 ? "" : String(num));
+      onChange(num);
+    };
+
+    return (
+      <input
+        type="text"
+        inputMode="decimal"
+        value={raw}
+        placeholder="0"
+        onChange={(e) => setRaw(e.target.value)}
+        onFocus={(e) => e.target.select()}
+        onBlur={(e) => commit(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { commit((e.target as HTMLInputElement).value); (e.target as HTMLInputElement).blur(); } }}
+        className={className ?? inputClass}
+      />
+    );
+  }
+
   function DollarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
     return (
       <>
         <span className="text-foreground-muted text-sm">$</span>
-        <input type="number" value={value} onChange={(e) => onChange(+e.target.value)} className={inputClass} />
+        <NumInput value={value} onChange={onChange} />
       </>
     );
   }
@@ -320,7 +356,7 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
                     <button onClick={() => setVenueStaff(venueStaff.filter((_, j) => j !== i))} className="text-foreground-muted hover:text-coral shrink-0"><X className="w-3 h-3" /></button>
                   </div>
                   <CostRow label="Hourly Rate" muted><DollarInput value={v.rate} onChange={(val) => { const n = [...venueStaff]; n[i].rate = val; setVenueStaff(n); }} /></CostRow>
-                  <CostRow label="Team Size" muted><input type="number" value={v.count} onChange={(e) => { const n = [...venueStaff]; n[i].count = +e.target.value; setVenueStaff(n); }} className={inputClass} /></CostRow>
+                  <CostRow label="Team Size" muted><NumInput value={v.count} onChange={(val) => { const n = [...venueStaff]; n[i].count = val; setVenueStaff(n); }} /></CostRow>
                 </div>
               ))}
               <CostRow label="Audio Hardware"><DollarInput value={audioHW} onChange={setAudioHW} /></CostRow>
@@ -352,10 +388,10 @@ ${calc.barBreakeven > 0 || weeksUntil > 0 ? `<div class="notes section"><h3>Note
           <div className="bg-surface border border-border rounded-xl p-5">
             <h2 className="font-heading text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-5">Attendance Goal</h2>
             <div className="space-y-3">
-              <CostRow label="Expected Headcount"><input type="number" value={headcount} onChange={(e) => setHeadcount(+e.target.value)} className={inputClass} /></CostRow>
+              <CostRow label="Expected Headcount"><NumInput value={headcount} onChange={setHeadcount} /></CostRow>
               <CostRow label="Profit Margin">
                 <span className="text-foreground-muted text-sm">%</span>
-                <input type="number" min={0} max={100} value={margin} onChange={(e) => setMargin(+e.target.value)} className={inputClass} />
+                <NumInput value={margin} onChange={setMargin} />
               </CostRow>
             </div>
           </div>
