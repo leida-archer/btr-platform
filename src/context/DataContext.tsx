@@ -127,7 +127,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       fetchOr("/api/assets", [] as Asset[]),
       fetchOr("/api/calculator", [] as CalculatorEvent[]),
       fetchOr("/api/team", [] as TeamMember[]),
-      fetchOr("/api/folders", [] as Folder[]),
+      fetchOr("/api/assets?resource=folders", [] as Folder[]),
     ]);
     // Double-check: skip if a mutation snuck in during the fetch
     if (skipIfRecentMutation && Date.now() - lastMutation.current < 3000) return;
@@ -325,7 +325,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const tempId = `temp-${Date.now()}`;
     const optimistic: Folder = { id: tempId, name, parentId };
     setFolders((prev) => [...prev, optimistic]);
-    fetch("/api/folders", {
+    fetch("/api/assets?resource=folders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, parentId }),
@@ -341,13 +341,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const renameFolder = useCallback((id: string, name: string) => {
     markMutation();
     setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, name } : f)));
-    api(`/api/folders?id=${id}`, "PATCH", { name });
+    api(`/api/assets?resource=folders&id=${id}`, "PATCH", { name });
   }, []);
 
   const moveFolder = useCallback((id: string, parentId: string | null) => {
     markMutation();
     setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, parentId } : f)));
-    api(`/api/folders?id=${id}`, "PATCH", { parentId });
+    api(`/api/assets?resource=folders&id=${id}`, "PATCH", { parentId });
   }, []);
 
   const deleteFolder = useCallback((id: string) => {
@@ -366,7 +366,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
     setFolders((prev) => prev.filter((f) => !toRemove.has(f.id)));
     setAssets((prev) => prev.map((a) => (a.folderId && toRemove.has(a.folderId) ? { ...a, folderId: null } : a)));
-    api(`/api/folders?id=${id}`, "DELETE");
+    api(`/api/assets?resource=folders&id=${id}`, "DELETE");
   }, [folders]);
 
   // ── Calculator mutations ──
