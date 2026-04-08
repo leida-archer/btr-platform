@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { X, Trash2, Image, Film, FileText, Music, Grid, List, Check, Plus } from "lucide-react";
 import Dropdown from "./Dropdown";
+import FolderTree from "./FolderTree";
+import type { Folder } from "../types/data";
 
 export interface PostData {
   title: string;
@@ -16,6 +18,13 @@ export interface PostData {
   notes: string;
   tags: string[];
   linkedAssetIds: string[];
+  phaseId: string;
+  briefMode: boolean;
+  setting: string;
+  hook: string;
+  body: string;
+  closingHook: string;
+  flag: string;
 }
 
 export interface AssetOption {
@@ -23,6 +32,7 @@ export interface AssetOption {
   name: string;
   type: "image" | "video" | "document" | "audio";
   thumbnail?: string;
+  folderId?: string | null;
 }
 
 interface StatusOption {
@@ -41,8 +51,14 @@ interface EditPostModalProps {
   modalTitle?: string;
   saveLabel?: string;
   availableAssets?: AssetOption[];
+  folders?: Folder[];
   eventOptions?: { value: string; label: string }[];
   assigneeOptions?: { value: string; label: string }[];
+  phaseOptions?: { value: string; label: string; color: string }[];
+  flagOptions?: { value: string; label: string }[];
+  allPhases?: { id: string; name: string; color: string; campaignId: string }[];
+  allFlags?: { id: string; label: string; campaignId: string }[];
+  campaigns?: { id: string; name: string }[];
   readOnly?: boolean;
 }
 
@@ -83,13 +99,15 @@ export function emptyPost(): PostData {
   return {
     title: "", platform: "Instagram", postType: "reel", status: "idea", priority: "medium",
     assignee: "Archer", event: "", scheduledDate: "", scheduledTime: "", caption: "", notes: "",
-    tags: [], linkedAssetIds: [],
+    tags: [], linkedAssetIds: [], phaseId: "", briefMode: false, setting: "", hook: "", body: "",
+    closingHook: "", flag: "",
   };
 }
 
 export default function EditPostModal({
   post, statusOptions, onSave, onDelete, onClose, modalTitle = "Edit Post", saveLabel = "Save",
-  availableAssets, eventOptions, assigneeOptions, readOnly,
+  availableAssets, folders = [], eventOptions, assigneeOptions, phaseOptions: staticPhaseOptions, flagOptions: staticFlagOptions,
+  allPhases, allFlags, campaigns: campaignsList, readOnly,
 }: EditPostModalProps) {
   const ASSIGNEE_OPTIONS = assigneeOptions ?? DEFAULT_ASSIGNEE_OPTIONS;
   const [title, setTitle] = useState(post.title);
@@ -106,9 +124,34 @@ export default function EditPostModal({
   const [tags, setTags] = useState<string[]>(post.tags);
   const [newTag, setNewTag] = useState("");
   const [linkedAssetIds, setLinkedAssetIds] = useState<string[]>(post.linkedAssetIds);
+  const [phaseId, setPhaseId] = useState(post.phaseId || "");
+  const [briefMode, setBriefMode] = useState(post.briefMode);
+  const [setting, setSetting] = useState(post.setting);
+  const [hook, setHook] = useState(post.hook);
+  const [bodyText, setBodyText] = useState(post.body);
+  const [closingHook, setClosingHook] = useState(post.closingHook);
+  const [flag, setFlag] = useState(post.flag);
   const [showAssetPicker, setShowAssetPicker] = useState(false);
   const [assetPickerView, setAssetPickerView] = useState<"grid" | "list">("grid");
   const [assetSearch, setAssetSearch] = useState("");
+  const [pickerFolderId, setPickerFolderId] = useState<string | null>(null);
+
+  const pickerFolderCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const a of availableAssets ?? []) {
+      if (a.folderId) counts[a.folderId] = (counts[a.folderId] ?? 0) + 1;
+    }
+    return counts;
+  }, [availableAssets]);
+
+  // Dynamically compute phase/flag options based on current event selection
+  const activeCampaign = campaignsList?.find((c) => c.name === event);
+  const phaseOptions = activeCampaign && allPhases
+    ? allPhases.filter((p) => p.campaignId === activeCampaign.id).map((p) => ({ value: p.id, label: p.name, color: p.color }))
+    : staticPhaseOptions ?? [];
+  const flagOptions = activeCampaign && allFlags
+    ? allFlags.filter((f) => f.campaignId === activeCampaign.id).map((f) => ({ value: f.label, label: f.label }))
+    : staticFlagOptions ?? [];
 
   const currentStatus = statusOptions.find((s) => s.key === post.status);
   const statusDropdownOptions = statusOptions.map((s) => ({ value: s.key, label: s.label }));
@@ -121,13 +164,13 @@ export default function EditPostModal({
   const handleSave = () => {
     if (!title.trim()) { setTitleError(true); return; }
     setTitleError(false);
-    onSave({ title, platform, postType, status, priority, assignee, event, scheduledDate, scheduledTime, caption, notes, tags, linkedAssetIds });
+    onSave({ title, platform, postType, status, priority, assignee, event, scheduledDate, scheduledTime, caption, notes, tags, linkedAssetIds, phaseId, briefMode, setting, hook, body: bodyText, closingHook, flag });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-surface border border-border rounded-xl w-full max-w-lg max-h-[90vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
+      <div className="relative bg-surface border border-border rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
@@ -191,6 +234,26 @@ export default function EditPostModal({
             </div>
           </div>
 
+          {/* Phase Tag + Flag */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Phase Tag</label>
+              {phaseOptions.length > 0 ? (
+                <Dropdown label="Phase" options={[{ value: "", label: "None" }, ...phaseOptions.map(p => ({ value: p.value, label: p.label }))]} value={phaseId} onChange={setPhaseId} fullWidth disabled={readOnly} />
+              ) : (
+                <input type="text" value="" placeholder={event ? "No phases — add in Campaigns" : "Select an event first"} className={inputClass} disabled />
+              )}
+            </div>
+            <div>
+              <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Flag</label>
+              {flagOptions.length > 0 ? (
+                <Dropdown label="Flag" options={[{ value: "", label: "None" }, ...flagOptions]} value={flag} onChange={setFlag} fullWidth disabled={readOnly} />
+              ) : (
+                <input type="text" value="" placeholder={event ? "No flags — add in Campaigns" : "Select an event first"} className={inputClass} disabled />
+              )}
+            </div>
+          </div>
+
           {/* Scheduled Date + Time */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -223,10 +286,45 @@ export default function EditPostModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Internal notes..."
-              rows={2}
+              rows={5}
               className={inputClass + " resize-none"}
               disabled={readOnly}
             />
+          </div>
+
+          {/* Brief Mode Toggle + Structured Fields */}
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider">Content Brief</label>
+              <button
+                type="button"
+                onClick={() => !readOnly && setBriefMode(!briefMode)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${briefMode ? "bg-magenta" : "bg-border"}`}
+                disabled={readOnly}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${briefMode ? "left-[18px]" : "left-0.5"}`} />
+              </button>
+            </div>
+            {briefMode && (
+              <div className="space-y-3 p-4 bg-ink/30 border border-border rounded-lg">
+                <div>
+                  <label className="text-[10px] font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1">Setting</label>
+                  <textarea value={setting} onChange={(e) => setSetting(e.target.value)} placeholder="Describe the scene / location..." rows={2} className={inputClass + " resize-none"} disabled={readOnly} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1">Opening Hook</label>
+                  <textarea value={hook} onChange={(e) => setHook(e.target.value)} placeholder="First line / visual hook..." rows={2} className={inputClass + " resize-none"} disabled={readOnly} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1">Body — What to Say / Do</label>
+                  <textarea value={bodyText} onChange={(e) => setBodyText(e.target.value)} placeholder="Main content direction..." rows={3} className={inputClass + " resize-none"} disabled={readOnly} />
+                </div>
+                <div className="border-l-2 border-border pl-3">
+                  <label className="text-[10px] font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1">Closing Hook / CTA</label>
+                  <textarea value={closingHook} onChange={(e) => setClosingHook(e.target.value)} placeholder="Final line / call to action..." rows={2} className={inputClass + " resize-none"} disabled={readOnly} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Tags */}
@@ -343,7 +441,7 @@ export default function EditPostModal({
       {showAssetPicker && availableAssets && (
         <div className="fixed inset-0 z-[55] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={() => setShowAssetPicker(false)} />
-          <div className="relative bg-surface border border-border rounded-xl w-full max-w-xl max-h-[80vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
+          <div className="relative bg-surface border border-border rounded-xl w-full max-w-3xl max-h-[80vh] flex flex-col max-sm:max-w-none max-sm:max-h-none max-sm:h-full max-sm:rounded-none">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
               <h3 className="font-heading text-sm font-semibold">Select Assets</h3>
@@ -379,12 +477,27 @@ export default function EditPostModal({
               />
             </div>
 
-            {/* Asset List/Grid */}
-            <div className="flex-1 overflow-y-auto p-4">
+            {/* Body: folder sidebar + asset list */}
+            <div className="flex flex-1 min-h-0">
+              <aside className="w-48 shrink-0 border-r border-border p-3 overflow-y-auto max-sm:hidden">
+                <FolderTree
+                  folders={folders}
+                  currentFolderId={pickerFolderId}
+                  onSelect={(id) => setPickerFolderId(id)}
+                  totalCount={(availableAssets ?? []).filter((a) => !a.folderId).length}
+                  counts={pickerFolderCounts}
+                />
+              </aside>
+              <div className="flex-1 overflow-y-auto p-4">
               {(() => {
-                const filtered = availableAssets.filter((a) =>
-                  !assetSearch || a.name.toLowerCase().includes(assetSearch.toLowerCase())
-                );
+                const filtered = availableAssets.filter((a) => {
+                  if (pickerFolderId === null) {
+                    if (a.folderId) return false;
+                  } else {
+                    if (a.folderId !== pickerFolderId) return false;
+                  }
+                  return !assetSearch || a.name.toLowerCase().includes(assetSearch.toLowerCase());
+                });
 
                 if (assetPickerView === "grid") {
                   return (
@@ -460,6 +573,7 @@ export default function EditPostModal({
                   </div>
                 );
               })()}
+              </div>
             </div>
 
             {/* Footer */}

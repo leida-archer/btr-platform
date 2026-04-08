@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
-import type { Asset, Post, Campaign, CalculatorEvent, TeamMember, PostStatus } from "../types/data";
+import type { Asset, Folder, Post, Campaign, CampaignPhase, CampaignFlag, CalculatorEvent, TeamMember, PostStatus } from "../types/data";
 
 // ── Fallback seed data (used when API is unavailable, e.g. local dev without DB) ──
 
@@ -52,14 +52,25 @@ function api(url: string, method: string, body?: unknown) {
 
 interface DataContextValue {
   campaigns: Campaign[];
+  campaignPhases: CampaignPhase[];
+  campaignFlags: CampaignFlag[];
   posts: Post[];
   assets: Asset[];
+  folders: Folder[];
   calculatorEvents: CalculatorEvent[];
   teamMembers: TeamMember[];
 
   addCampaign: (c: Omit<Campaign, "id">) => Campaign;
   updateCampaign: (id: string, updates: Partial<Campaign>) => void;
   deleteCampaign: (id: string) => void;
+
+  addCampaignPhase: (p: Omit<CampaignPhase, "id">) => CampaignPhase;
+  updateCampaignPhase: (id: string, updates: Partial<CampaignPhase>) => void;
+  deleteCampaignPhase: (id: string) => void;
+
+  addCampaignFlag: (f: Omit<CampaignFlag, "id">) => CampaignFlag;
+  updateCampaignFlag: (id: string, updates: Partial<CampaignFlag>) => void;
+  deleteCampaignFlag: (id: string) => void;
 
   addPost: (p: Omit<Post, "id">) => Post;
   updatePost: (id: string, updates: Partial<Post>) => void;
@@ -68,6 +79,12 @@ interface DataContextValue {
   addAsset: (a: Omit<Asset, "id">) => Asset;
   updateAsset: (id: string, updates: Partial<Asset>) => void;
   deleteAsset: (id: string) => void;
+  moveAssetsToFolder: (assetIds: string[], folderId: string | null) => void;
+
+  addFolder: (name: string, parentId: string | null) => Folder;
+  renameFolder: (id: string, name: string) => void;
+  moveFolder: (id: string, parentId: string | null) => void;
+  deleteFolder: (id: string) => void;
 
   updateCalculatorEvent: (name: string, state: CalculatorEvent) => void;
 
@@ -86,8 +103,11 @@ const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [campaignPhases, setCampaignPhases] = useState<CampaignPhase[]>([]);
+  const [campaignFlags, setCampaignFlags] = useState<CampaignFlag[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [assets, setAssets] = useState<Asset[]>(SEED_ASSETS);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [calculatorEvents, setCalculatorEvents] = useState<CalculatorEvent[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(SEED_TEAM);
 
@@ -99,20 +119,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const fetchAll = useCallback(async (skipIfRecentMutation = false) => {
     // Don't overwrite optimistic state if a mutation happened within the last 3s
     if (skipIfRecentMutation && Date.now() - lastMutation.current < 3000) return;
-    const [c, p, dbAssets, ce, dbTeam] = await Promise.all([
+    const [c, cp, cf, p, dbAssets, ce, dbTeam, dbFolders] = await Promise.all([
       fetchOr("/api/campaigns", [] as Campaign[]),
+      fetchOr("/api/campaigns?resource=phases", [] as CampaignPhase[]),
+      fetchOr("/api/campaigns?resource=flags", [] as CampaignFlag[]),
       fetchOr("/api/posts", [] as Post[]),
       fetchOr("/api/assets", [] as Asset[]),
       fetchOr("/api/calculator", [] as CalculatorEvent[]),
       fetchOr("/api/team", [] as TeamMember[]),
+      fetchOr("/api/folders", [] as Folder[]),
     ]);
     // Double-check: skip if a mutation snuck in during the fetch
     if (skipIfRecentMutation && Date.now() - lastMutation.current < 3000) return;
     setCampaigns(c);
+    setCampaignPhases(cp);
+    setCampaignFlags(cf);
     setPosts(p);
     setAssets(mergeWithSeed(dbAssets, SEED_ASSETS));
     setCalculatorEvents(ce);
     setTeamMembers(mergeWithSeed(dbTeam, SEED_TEAM));
+    setFolders(dbFolders);
   }, []);
 
   // Fetch on mount + poll every 15s
@@ -152,6 +178,68 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setCampaigns((prev) => prev.filter((c) => c.id !== id));
     setPosts((prev) => prev.map((p) => (p.campaignId === id ? { ...p, campaignId: undefined } : p)));
     api(`/api/campaigns?id=${id}`, "DELETE");
+  }, []);
+
+  // ── Campaign Phase mutations ──
+  const addCampaignPhase = useCallback((p: Omit<CampaignPhase, "id">) => {
+    markMutation();
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = { ...p, id: tempId };
+    setCampaignPhases((prev) => [...prev, optimistic]);
+    fetch("/api/campaigns?resource=phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(p),
+    })
+      .then((r) => r.json())
+      .then((saved: CampaignPhase) => {
+        setCampaignPhases((prev) => prev.map((x) => (x.id === tempId ? saved : x)));
+      })
+      .catch(console.error);
+    return optimistic;
+  }, []);
+
+  const updateCampaignPhase = useCallback((id: string, updates: Partial<CampaignPhase>) => {
+    markMutation();
+    setCampaignPhases((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    api(`/api/campaigns?resource=phases&id=${id}`, "PATCH", updates);
+  }, []);
+
+  const deleteCampaignPhase = useCallback((id: string) => {
+    markMutation();
+    setCampaignPhases((prev) => prev.filter((p) => p.id !== id));
+    api(`/api/campaigns?resource=phases&id=${id}`, "DELETE");
+  }, []);
+
+  // ── Campaign Flag mutations ──
+  const addCampaignFlag = useCallback((f: Omit<CampaignFlag, "id">) => {
+    markMutation();
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = { ...f, id: tempId };
+    setCampaignFlags((prev) => [...prev, optimistic]);
+    fetch("/api/campaigns?resource=flags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(f),
+    })
+      .then((r) => r.json())
+      .then((saved: CampaignFlag) => {
+        setCampaignFlags((prev) => prev.map((x) => (x.id === tempId ? saved : x)));
+      })
+      .catch(console.error);
+    return optimistic;
+  }, []);
+
+  const updateCampaignFlag = useCallback((id: string, updates: Partial<CampaignFlag>) => {
+    markMutation();
+    setCampaignFlags((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)));
+    api(`/api/campaigns?resource=flags&id=${id}`, "PATCH", updates);
+  }, []);
+
+  const deleteCampaignFlag = useCallback((id: string) => {
+    markMutation();
+    setCampaignFlags((prev) => prev.filter((f) => f.id !== id));
+    api(`/api/campaigns?resource=flags&id=${id}`, "DELETE");
   }, []);
 
   // ── Post mutations ──
@@ -222,6 +310,65 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     api(`/api/assets?id=${id}`, "DELETE");
   }, []);
 
+  const moveAssetsToFolder = useCallback((assetIds: string[], folderId: string | null) => {
+    markMutation();
+    const ids = new Set(assetIds);
+    setAssets((prev) => prev.map((a) => (ids.has(a.id) ? { ...a, folderId } : a)));
+    for (const id of assetIds) {
+      api(`/api/assets?id=${id}`, "PATCH", { folderId });
+    }
+  }, []);
+
+  // ── Folder mutations ──
+  const addFolder = useCallback((name: string, parentId: string | null) => {
+    markMutation();
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Folder = { id: tempId, name, parentId };
+    setFolders((prev) => [...prev, optimistic]);
+    fetch("/api/folders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, parentId }),
+    })
+      .then((r) => r.json())
+      .then((saved: Folder) => {
+        setFolders((prev) => prev.map((f) => (f.id === tempId ? saved : f)));
+      })
+      .catch(console.error);
+    return optimistic;
+  }, []);
+
+  const renameFolder = useCallback((id: string, name: string) => {
+    markMutation();
+    setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, name } : f)));
+    api(`/api/folders?id=${id}`, "PATCH", { name });
+  }, []);
+
+  const moveFolder = useCallback((id: string, parentId: string | null) => {
+    markMutation();
+    setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, parentId } : f)));
+    api(`/api/folders?id=${id}`, "PATCH", { parentId });
+  }, []);
+
+  const deleteFolder = useCallback((id: string) => {
+    markMutation();
+    // Collect id + all descendants
+    const toRemove = new Set<string>([id]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const f of folders) {
+        if (f.parentId && toRemove.has(f.parentId) && !toRemove.has(f.id)) {
+          toRemove.add(f.id);
+          changed = true;
+        }
+      }
+    }
+    setFolders((prev) => prev.filter((f) => !toRemove.has(f.id)));
+    setAssets((prev) => prev.map((a) => (a.folderId && toRemove.has(a.folderId) ? { ...a, folderId: null } : a)));
+    api(`/api/folders?id=${id}`, "DELETE");
+  }, [folders]);
+
   // ── Calculator mutations ──
   const updateCalculatorEvent = useCallback((name: string, state: CalculatorEvent) => {
     markMutation();
@@ -290,10 +437,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value: DataContextValue = {
-    campaigns, posts, assets, calculatorEvents, teamMembers,
+    campaigns, campaignPhases, campaignFlags, posts, assets, folders, calculatorEvents, teamMembers,
     addCampaign, updateCampaign, deleteCampaign,
+    addCampaignPhase, updateCampaignPhase, deleteCampaignPhase,
+    addCampaignFlag, updateCampaignFlag, deleteCampaignFlag,
     addPost, updatePost, deletePost,
-    addAsset, updateAsset, deleteAsset,
+    addAsset, updateAsset, deleteAsset, moveAssetsToFolder,
+    addFolder, renameFolder, moveFolder, deleteFolder,
     updateCalculatorEvent,
     addTeamMember, removeTeamMember,
     getPostsByCampaign, getPostsByStatus, getAssetsByCampaign, getCampaignNames,

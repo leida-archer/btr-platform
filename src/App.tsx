@@ -7,11 +7,11 @@ import SetupPage from "./pages/SetupPage";
 import AdminShell from "./components/AdminShell";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCalculator from "./pages/AdminCalculator";
-import AdminCalendar from "./pages/AdminCalendar";
-import AdminPipeline from "./pages/AdminPipeline";
+import AdminContent from "./pages/AdminContent";
 import AdminAssets from "./pages/AdminAssets";
 import AdminCampaigns from "./pages/AdminCampaigns";
 import AdminSettings from "./pages/AdminSettings";
+import AdminFormatter from "./pages/AdminFormatter";
 import { RoleProvider } from "./context/RoleContext";
 
 const STATIC_PREVIEW = import.meta.env.VITE_STATIC_PREVIEW === "true";
@@ -61,11 +61,11 @@ export default function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="calendar" element={<AdminCalendar />} />
-          <Route path="pipeline" element={<AdminPipeline />} />
+          <Route path="content" element={<AdminContent />} />
           <Route path="assets" element={<AdminAssets />} />
           <Route path="events" element={<AdminCampaigns />} />
           <Route path="calculator" element={<AdminCalculator />} />
+          <Route path="formatter" element={<AdminFormatter />} />
           <Route path="settings" element={<AdminSettings role={effectiveRole} />} />
         </Route>
 

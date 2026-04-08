@@ -3,7 +3,20 @@
 // When the backend is connected, these map 1:1 to the Prisma models.
 
 export type AssetType = "image" | "video" | "document" | "audio";
-export type PostStatus = "idea" | "allocated" | "editing" | "approved" | "posted";
+export type PostStatus = "idea" | "editing" | "posted";
+
+export interface CampaignPhase {
+  id: string;
+  name: string;
+  color: string;
+  campaignId: string;
+}
+
+export interface CampaignFlag {
+  id: string;
+  label: string;
+  campaignId: string;
+}
 export type CampaignStatus = "active" | "planning" | "upcoming" | "completed";
 export type TeamRole = "admin" | "editor" | "viewer";
 
@@ -15,6 +28,13 @@ export interface Asset {
   date?: string;
   tags: string[];
   thumbnail?: string;
+  folderId?: string | null;
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  parentId: string | null;
 }
 
 export interface Post {
@@ -33,6 +53,13 @@ export interface Post {
   tags: string[];
   linkedAssetIds: string[];
   campaignId?: string | null;
+  phaseId?: string | null;
+  briefMode: boolean;
+  setting: string;
+  hook: string;
+  body: string;
+  closingHook: string;
+  flag: string;
 }
 
 export type CampaignType = "event" | "growth";

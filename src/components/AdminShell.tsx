@@ -2,10 +2,10 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  Calendar,
-  Kanban,
+  CalendarDays,
   File,
   Image,
+  ImagePlus,
   PartyPopper,
   Calculator,
   Settings,
@@ -27,21 +27,20 @@ import ProfileModal from "./ProfileModal";
 
 const CONTENT_NAV = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-  { to: "/admin/calendar", icon: Calendar, label: "Calendar" },
-  { to: "/admin/pipeline", icon: Kanban, label: "Pipeline" },
+  { to: "/admin/content", icon: CalendarDays, label: "Content" },
   { to: "/admin/assets", icon: File, label: "Assets" },
 ];
 
 const EVENTS_NAV = [
   { to: "/admin/events", icon: PartyPopper, label: "Campaigns" },
   { to: "/admin/calculator", icon: Calculator, label: "Ticket Calculator" },
+  { to: "/admin/formatter", icon: ImagePlus, label: "Photo Formatter" },
 ];
 
 // Bottom nav shows a subset of the most-used pages
 const BOTTOM_NAV = [
   { to: "/admin", icon: LayoutDashboard, label: "Home", end: true },
-  { to: "/admin/calendar", icon: Calendar, label: "Calendar" },
-  { to: "/admin/pipeline", icon: Kanban, label: "Pipeline" },
+  { to: "/admin/content", icon: CalendarDays, label: "Content" },
   { to: "/admin/assets", icon: File, label: "Assets" },
   { to: "/admin/events", icon: PartyPopper, label: "Campaigns" },
 ];
@@ -120,7 +119,7 @@ function useSearchIndex(): SearchItem[] {
     const postItems: SearchItem[] = posts.map((p) => ({
       label: p.title,
       sublabel: `${p.platform} · ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}`,
-      path: "/admin/pipeline",
+      path: "/admin/content",
       icon: Hash,
       iconColor: PLATFORM_COLORS[p.platform] ?? "#FFFFFF",
       category: "Posts",

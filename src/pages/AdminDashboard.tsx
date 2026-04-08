@@ -153,10 +153,8 @@ function getConflicts(posts: Post[]): { platform: string; date: string; time: st
 
 const STATUS_META: { key: string; label: string; color: string }[] = [
   { key: "posted", label: "Posted", color: "#22C55E" },
-  { key: "approved", label: "Approved", color: "#10B981" },
   { key: "editing", label: "Editing", color: "#E8652B" },
-  { key: "allocated", label: "Allocated", color: "#F59E0B" },
-  { key: "idea", label: "Idea", color: "#8B5CF6" },
+  { key: "idea", label: "Idea", color: "#9CA3AF" },
 ];
 
 export default function AdminDashboard() {
@@ -189,8 +187,8 @@ export default function AdminDashboard() {
 
   const totalPosts = posts.length;
   const postedCount = posts.filter((p) => p.status === "posted").length;
-  const editingCount = posts.filter((p) => p.status === "editing" || p.status === "allocated").length;
-  const upcomingCount = posts.filter((p) => p.status === "approved" || p.status === "idea").length;
+  const editingCount = posts.filter((p) => p.status === "editing").length;
+  const upcomingCount = posts.filter((p) => p.status === "idea").length;
 
   return (
     <div>
@@ -321,7 +319,7 @@ export default function AdminDashboard() {
           <div className="space-y-2">
             {upcomingPosts.map((p) => {
               const platformColors: Record<string, string> = { Instagram: "#E1306C", TikTok: "#00F2EA", X: "#FFFFFF", Reddit: "#FF4500" };
-              const statusColors: Record<string, string> = { approved: "#10B981", idea: "#8B5CF6", editing: "#E8652B", allocated: "#F59E0B", posted: "#22C55E" };
+              const statusColors: Record<string, string> = { idea: "#9CA3AF", editing: "#E8652B", posted: "#22C55E" };
               return (
                 <div key={p.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-hover transition-colors cursor-pointer">
                   <div className="w-1 h-10 rounded-full shrink-0" style={{ backgroundColor: platformColors[p.platform] || "#fff" }} />

@@ -25,6 +25,29 @@ model Campaign {
 
   posts  Post[]
   assets Asset[]
+  phases CampaignPhase[]
+  flags  CampaignFlag[]
+}
+
+// ── Campaign Flags (flag library per campaign) ──
+model CampaignFlag {
+  id         String   @id @default(cuid())
+  label      String   // e.g. "🎟 Tickets live"
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+// ── Campaign Phases (tag library per campaign) ──
+model CampaignPhase {
+  id         String   @id @default(cuid())
+  name       String
+  color      String   // hex color e.g. "#EEEDFE"
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  posts Post[]
 }
 
 // ── Posts (Content Pipeline) ──
@@ -33,7 +56,7 @@ model Post {
   title          String
   platform       String
   postType       String   @default("reel")
-  status         String   @default("idea") // idea | allocated | editing | approved | posted
+  status         String   @default("idea") // idea | editing | posted
   priority       String   @default("medium")
   assignee       String
   event          String   @default("")
@@ -43,11 +66,31 @@ model Post {
   notes          String   @default("")
   tags           String[] @default([])
   linkedAssetIds String[] @default([])
+  briefMode      Boolean  @default(false)
+  setting        String   @default("")
+  hook           String   @default("")
+  body           String   @default("")
+  closingHook    String   @default("")
+  flag           String   @default("")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  phaseId    String?
+  phase      CampaignPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+}
+
+// ── Asset Folders (nestable) ──
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    Folder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Folder[] @relation("FolderTree")
+  assets    Asset[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ── Assets (Media Library) ──
@@ -65,6 +108,8 @@ model Asset {
 
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  folderId   String?
+  folder     Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 }
 
 // ── Calculator Events ──

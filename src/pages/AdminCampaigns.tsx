@@ -15,10 +15,8 @@ const statusConfig = {
 };
 
 const POST_STATUS_OPTIONS = [
-  { key: "idea", label: "Idea", color: "#8B5CF6", bg: "rgba(139,92,246,0.15)" },
-  { key: "allocated", label: "Allocated", color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
+  { key: "idea", label: "Idea", color: "#9CA3AF", bg: "rgba(156,163,175,0.15)" },
   { key: "editing", label: "Editing", color: "#E8652B", bg: "rgba(232,101,43,0.15)" },
-  { key: "approved", label: "Approved", color: "#10B981", bg: "rgba(16,185,129,0.15)" },
   { key: "posted", label: "Posted", color: "#22C55E", bg: "rgba(34,197,94,0.15)" },
 ];
 
@@ -142,7 +140,7 @@ function CityInput({ value, onChange, className }: { value: string; onChange: (v
 
 export default function AdminCampaigns() {
   const isViewer = useIsViewer();
-  const { campaigns, assets, teamMembers, addCampaign, updateCampaign, deleteCampaign, updatePost, deletePost, updateAsset, deleteAsset, getPostsByCampaign, getAssetsByCampaign } = useData();
+  const { campaigns, campaignPhases, campaignFlags, assets, folders, teamMembers, addCampaign, updateCampaign, deleteCampaign, addCampaignPhase, deleteCampaignPhase, addCampaignFlag, deleteCampaignFlag, updatePost, deletePost, updateAsset, deleteAsset, getPostsByCampaign, getAssetsByCampaign } = useData();
 
   const [view, setView] = useState<"list" | "detail">("list");
   const [activeId, setActiveId] = useState<string>("");
@@ -171,6 +169,11 @@ export default function AdminCampaigns() {
   const [editTicketsSold, setEditTicketsSold] = useState(0);
   const [editTicketGoal, setEditTicketGoal] = useState(100);
 
+  // Phase/flag inline editing
+  const [newPhaseName, setNewPhaseName] = useState("");
+  const [newPhaseColor, setNewPhaseColor] = useState("#8B5CF6");
+  const [newFlagLabel, setNewFlagLabel] = useState("");
+
   // Post/asset editing via shared modals
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
@@ -183,7 +186,7 @@ export default function AdminCampaigns() {
   ], [campaigns]);
 
   const availableAssets: AssetOption[] = useMemo(
-    () => assets.map((a) => ({ id: a.id, name: a.name, type: a.type, thumbnail: a.thumbnail })),
+    () => assets.map((a) => ({ id: a.id, name: a.name, type: a.type, thumbnail: a.thumbnail, folderId: a.folderId ?? null })),
     [assets]
   );
 
@@ -368,6 +371,70 @@ export default function AdminCampaigns() {
                 </div>
               </>
             )}
+            {/* Phase Tags */}
+            {editingId && (
+              <div>
+                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Phase Tags</label>
+                <div className="space-y-1.5 mb-2">
+                  {campaignPhases.filter((p) => p.campaignId === editingId).map((phase) => (
+                    <div key={phase.id} className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded" style={{ backgroundColor: phase.color }} />
+                      <span className="text-sm flex-1">{phase.name}</span>
+                      <button onClick={() => deleteCampaignPhase(phase.id)} className="text-foreground-muted hover:text-coral transition-colors"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ))}
+                  {campaignPhases.filter((p) => p.campaignId === editingId).length === 0 && (
+                    <p className="text-xs text-foreground-muted">No phases yet</p>
+                  )}
+                </div>
+                <div className="flex gap-1.5">
+                  <input type="color" value={newPhaseColor} onChange={(e) => setNewPhaseColor(e.target.value)} className="w-9 h-9 rounded-lg border border-border bg-transparent cursor-pointer p-0.5" />
+                  <input type="text" value={newPhaseName} onChange={(e) => setNewPhaseName(e.target.value)} placeholder="Phase name..." className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newPhaseName.trim()) {
+                        addCampaignPhase({ name: newPhaseName.trim(), color: newPhaseColor, campaignId: editingId });
+                        setNewPhaseName("");
+                      }
+                    }}
+                  />
+                  <button type="button" onClick={() => { if (newPhaseName.trim()) { addCampaignPhase({ name: newPhaseName.trim(), color: newPhaseColor, campaignId: editingId }); setNewPhaseName(""); } }} className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5">
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Flags */}
+            {editingId && (
+              <div>
+                <label className="text-xs font-heading font-semibold text-foreground-muted uppercase tracking-wider block mb-1.5">Flags</label>
+                <div className="space-y-1.5 mb-2">
+                  {campaignFlags.filter((f) => f.campaignId === editingId).map((flag) => (
+                    <div key={flag.id} className="flex items-center gap-2">
+                      <span className="text-sm flex-1">{flag.label}</span>
+                      <button onClick={() => deleteCampaignFlag(flag.id)} className="text-foreground-muted hover:text-coral transition-colors"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ))}
+                  {campaignFlags.filter((f) => f.campaignId === editingId).length === 0 && (
+                    <p className="text-xs text-foreground-muted">No flags yet</p>
+                  )}
+                </div>
+                <div className="flex gap-1.5">
+                  <input type="text" value={newFlagLabel} onChange={(e) => setNewFlagLabel(e.target.value)} placeholder="e.g. 🎟 Tickets live" className="flex-1 bg-ink/50 border border-border rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-1 focus:ring-magenta"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newFlagLabel.trim()) {
+                        addCampaignFlag({ label: newFlagLabel.trim(), campaignId: editingId });
+                        setNewFlagLabel("");
+                      }
+                    }}
+                  />
+                  <button type="button" onClick={() => { if (newFlagLabel.trim()) { addCampaignFlag({ label: newFlagLabel.trim(), campaignId: editingId }); setNewFlagLabel(""); } }} className="text-foreground-muted hover:text-foreground border border-border rounded-lg px-2 py-1.5">
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-2">
               <button onClick={saveEdit} className="flex-1 bg-magenta hover:bg-magenta/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
               <button onClick={handleDeleteCampaign} className="flex items-center gap-1.5 text-foreground-muted hover:text-coral border border-border rounded-lg px-3 py-2 text-sm transition-colors" title="Delete campaign">
@@ -640,14 +707,21 @@ export default function AdminCampaigns() {
               event: editingPost.event, scheduledDate: editingPost.scheduledDate,
               scheduledTime: editingPost.scheduledTime, caption: editingPost.caption,
               notes: editingPost.notes, tags: editingPost.tags, linkedAssetIds: editingPost.linkedAssetIds,
+              phaseId: editingPost.phaseId ?? "", briefMode: editingPost.briefMode,
+              setting: editingPost.setting, hook: editingPost.hook, body: editingPost.body,
+              closingHook: editingPost.closingHook, flag: editingPost.flag,
             }}
             statusOptions={POST_STATUS_OPTIONS}
             onSave={handleSavePost}
             onDelete={handleDeletePost}
             onClose={() => setEditingPost(null)}
             availableAssets={availableAssets}
+            folders={folders}
             eventOptions={eventOptions}
             assigneeOptions={assigneeOptions}
+            allPhases={campaignPhases}
+            allFlags={campaignFlags}
+            campaigns={campaigns}
             readOnly={isViewer}
           />
         )}
