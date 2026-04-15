@@ -92,6 +92,7 @@
 .container { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
 .section-label { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.15em; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
 .section-title { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.4rem); color: var(--color-cream); margin-bottom: 48px; text-align: center; letter-spacing: 0.02em; }
+.section-title--left { text-align: left; }
 
 /* ========================================
    Buttons
@@ -203,7 +204,7 @@
 .about__stats { display: flex; gap: 40px; margin-top: 40px; }
 .about__stat { text-align: center; }
 .about__stat-number { display: block; font-family: var(--font-heading); font-size: 2rem; font-weight: 700; }
-.about__stat-label { font-size: 0.8rem; color: var(--color-slate); text-transform: uppercase; letter-spacing: 0.08em; }
+.about__stat-label { font-size: 0.8rem; color: var(--color-slate); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
 .about__ripple-container { display: flex; align-items: center; justify-content: center; }
 .about__ripple { width: 100%; max-width: 400px; animation: ripplePulse 4s ease-in-out infinite; }
 

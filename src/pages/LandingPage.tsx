@@ -226,16 +226,20 @@ export default function LandingPage() {
               </p>
               <div className="about__stats">
                 <div className="about__stat">
-                  <span className="about__stat-number gradient-text">5K+</span>
-                  <span className="about__stat-label">Attendees</span>
+                  <span className="about__stat-number gradient-text">200k+</span>
+                  <span className="about__stat-label">Meals Served</span>
                 </div>
                 <div className="about__stat">
-                  <span className="about__stat-number gradient-text">28+</span>
-                  <span className="about__stat-label">Artists Hosted</span>
+                  <span className="about__stat-number gradient-text">100+</span>
+                  <span className="about__stat-label">Children Reunited</span>
                 </div>
                 <div className="about__stat">
-                  <span className="about__stat-number gradient-text">16+</span>
-                  <span className="about__stat-label">Events Hosted</span>
+                  <span className="about__stat-number gradient-text">20+</span>
+                  <span className="about__stat-label">Staff Employed</span>
+                </div>
+                <div className="about__stat">
+                  <span className="about__stat-number gradient-text">2</span>
+                  <span className="about__stat-label">Centers Operating</span>
                 </div>
               </div>
             </div>
