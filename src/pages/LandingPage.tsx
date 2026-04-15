@@ -189,18 +189,18 @@ export default function LandingPage() {
             </div>
             <div className="artist-card">
               <div className="artist-card__photo">
-                <img src="/images/artists/Cam_Steen.jpg" alt="Cam Steen" />
-              </div>
-              <div className="artist-card__info">
-                <div className="artist-card__name">CAM STEEN</div>
-              </div>
-            </div>
-            <div className="artist-card">
-              <div className="artist-card__photo">
                 <img src="/images/artists/Kaipora.jpg" alt="Kaipora" />
               </div>
               <div className="artist-card__info">
                 <div className="artist-card__name">KAIPORA</div>
+              </div>
+            </div>
+            <div className="artist-card">
+              <div className="artist-card__photo">
+                <img src="/images/artists/Cam_Steen.jpg" alt="Cam Steen" />
+              </div>
+              <div className="artist-card__info">
+                <div className="artist-card__name">CAM STEEN</div>
               </div>
             </div>
           </div>
