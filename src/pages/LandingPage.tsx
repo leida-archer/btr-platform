@@ -216,14 +216,15 @@ export default function LandingPage() {
               <p className="section-label">The Movement</p>
               <h2 className="section-title section-title--left" style={{ marginBottom: 24 }}>More Than Music</h2>
               <p className="about__description">
-                Beyond the Rhythm is a collective experience that transcends the ordinary.
-                We curate immersive environments where sound, light, and community converge
-                to create moments that move your soul.
+                Beyond the Rhythm is the music-driven fundraising program for Fesser &amp; Friends
+                Inc. — a registered 501(c)(3) non-profit operating two orphanages in the
+                Democratic Republic of the Congo. What started as a small group of friends
+                trying to do their part has grown into something far bigger and more beautiful
+                than we ever imagined. Click the link below to learn more!
               </p>
-              <p className="about__description">
-                From intimate warehouse sessions to open-air festivals, every event is
-                designed to push the boundaries of what a music experience can be.
-              </p>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 16, marginBottom: 24 }}>
+                <a href="https://fesserandfriends.org" target="_blank" rel="noopener noreferrer" className="btn btn--outline">Fesser and Friends</a>
+              </div>
               <div className="about__stats">
                 <div className="about__stat">
                   <span className="about__stat-number gradient-text">200k+</span>
