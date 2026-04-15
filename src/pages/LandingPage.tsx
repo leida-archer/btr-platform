@@ -44,7 +44,7 @@ function useCountdown(target: Date) {
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const eventDate = new Date("2026-05-01T20:00:00-07:00");
+  const eventDate = new Date("2026-05-02T20:00:00-07:00");
   const cd = useCountdown(eventDate);
 
   useEffect(() => {
@@ -59,19 +59,19 @@ export default function LandingPage() {
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
           <div className="pub-nav__left">
-            <a href="#tickets" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
+            <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
           </div>
           <a href="#" className="pub-nav__logo">
             <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
             <img src="/logos/logo-on-darkv2.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--stacked" />
           </a>
           <ul className="pub-nav__links">
-            <li><a href="#events" className="pub-nav__link">Events</a></li>
+            <li><a href="#tickets" className="pub-nav__link">Events</a></li>
             <li><a href="#about" className="pub-nav__link">About</a></li>
             <li><a href="#gallery" className="pub-nav__link">Gallery</a></li>
           </ul>
           <div className="pub-nav__right">
-            <a href="#tickets" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
+            <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
             <Link to="/login" className="pub-nav__team">Team</Link>
             <button
               className="pub-nav__hamburger"
@@ -87,10 +87,10 @@ export default function LandingPage() {
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
         <div className="pub-mobile-menu">
-          <a href="#events" onClick={() => setMobileMenuOpen(false)}>Events</a>
+          <a href="#tickets" onClick={() => setMobileMenuOpen(false)}>Events</a>
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
           <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
-          <a href="#tickets" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
+          <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
           <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>
         </div>
       )}
@@ -105,7 +105,7 @@ export default function LandingPage() {
           <img src="/logos/logo_gradient_ripple_tree_btr.svg" alt="Beyond the Rhythm" className="hero__logo" />
           <p className="hero__tagline">The power of music has the power to heal</p>
           <div className="hero__actions">
-            <a href="#events" className="btn btn--gradient">Explore Events</a>
+            <a href="#tickets" className="btn btn--gradient">Explore Events</a>
             <a href="#about" className="btn btn--outline">Learn More</a>
           </div>
         </div>
@@ -122,9 +122,9 @@ export default function LandingPage() {
             <div>
               <h2 className="countdown-section__title">BtR San Diego</h2>
               <div className="countdown-section__details">
-                <span className="countdown-section__detail">May 1, 2026</span>
-                <span className="countdown-section__detail">FIT Social</span>
-                <span className="countdown-section__detail">San Diego, CA</span>
+                <span className="countdown-section__detail">May 2, 2026</span>
+                <span className="countdown-section__detail">Trilogy Sanctuary</span>
+                <span className="countdown-section__detail">La Jolla, CA</span>
               </div>
             </div>
             <div className="countdown">
@@ -149,38 +149,16 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="ticket-tiers">
-            <div className="ticket-card" style={{ opacity: 0.5 }}>
-              <span className="ticket-card__badge" style={{ background: "rgba(214,36,110,0.15)", color: "#d6246e" }}>Coming Soon</span>
-              <h3 className="ticket-card__tier">General Admission</h3>
-              <div className="ticket-card__price gradient-text">TBD</div>
-              <span className="btn btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
-            </div>
-            <div className="ticket-card" style={{ opacity: 0.5 }}>
-              <span className="ticket-card__badge" style={{ background: "rgba(214,36,110,0.15)", color: "#d6246e" }}>Coming Soon</span>
-              <h3 className="ticket-card__tier">Standard</h3>
-              <div className="ticket-card__price gradient-text">TBD</div>
-              <span className="btn btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* UPCOMING EVENTS */}
-      <section className="events-section" id="events">
-        <div className="container">
-          <p className="section-label" style={{ textAlign: "center" }}>What's Next</p>
-          <h2 className="section-title">Upcoming Events</h2>
-          <div className="events__grid">
-            <div className="event-card">
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div className="event-card" style={{ maxWidth: 420, width: "100%" }}>
               <div className="event-card__image">
-                <img src="/images/venue/FIT_Social_Sunset.jpg" alt="BtR San Diego" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="event-card__status event-card__status--onsale">Coming Soon</span>
+                <img src="/images/venue/Trilogy_Sanctuary.jpg" alt="BtR San Diego" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className="event-card__status event-card__status--onsale">On Sale</span>
               </div>
               <div className="event-card__body">
                 <h3 className="event-card__name">BtR San Diego</h3>
-                <p className="event-card__date">May 1, 2026 — FIT Social</p>
-                <span className="btn btn--sm btn--outline" style={{ width: "100%", opacity: 0.5, pointerEvents: "none" as const }}>Not Yet Available</span>
+                <p className="event-card__date">May 2, 2026 — Trilogy Sanctuary</p>
+                <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--sm btn--gradient" style={{ width: "100%" }}>Get Tickets</a>
               </div>
             </div>
           </div>
@@ -199,7 +177,6 @@ export default function LandingPage() {
               </div>
               <div className="artist-card__info">
                 <div className="artist-card__name">CHMURA</div>
-                <div className="artist-card__genre">Experimental Bass</div>
               </div>
             </div>
             <div className="artist-card">
@@ -208,7 +185,22 @@ export default function LandingPage() {
               </div>
               <div className="artist-card__info">
                 <div className="artist-card__name">SATURNA</div>
-                <div className="artist-card__genre">Experimental Bass</div>
+              </div>
+            </div>
+            <div className="artist-card">
+              <div className="artist-card__photo">
+                <img src="/images/artists/Cam_Steen.jpg" alt="Cam Steen" />
+              </div>
+              <div className="artist-card__info">
+                <div className="artist-card__name">CAM STEEN</div>
+              </div>
+            </div>
+            <div className="artist-card">
+              <div className="artist-card__photo">
+                <img src="/images/artists/Kaipora.jpg" alt="Kaipora" />
+              </div>
+              <div className="artist-card__info">
+                <div className="artist-card__name">KAIPORA</div>
               </div>
             </div>
           </div>
@@ -310,7 +302,7 @@ export default function LandingPage() {
             <div>
               <h4 className="pub-footer__heading">Explore</h4>
               <ul className="pub-footer__links">
-                <li><a href="#events">Events</a></li>
+                <li><a href="#tickets">Events</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#tickets">Tickets</a></li>
               </ul>
