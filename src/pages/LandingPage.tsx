@@ -317,7 +317,7 @@ export default function LandingPage() {
               <ul className="pub-footer__links">
                 <li><a href="#">FAQ</a></li>
                 <li><a href="#">Accessibility</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="https://www.fesserandfriends.org/contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
               </ul>
             </div>
             <div>
