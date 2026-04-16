@@ -315,8 +315,6 @@ export default function LandingPage() {
             <div>
               <h4 className="pub-footer__heading">Info</h4>
               <ul className="pub-footer__links">
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Accessibility</a></li>
                 <li><a href="https://www.fesserandfriends.org/contact" target="_blank" rel="noopener noreferrer">Contact</a></li>
               </ul>
             </div>
@@ -328,12 +326,6 @@ export default function LandingPage() {
                 </a>
                 <a href="https://www.tiktok.com/@beyondtherhythm.official?_r=1&_t=ZP-95anv6cSKDf" target="_blank" rel="noopener noreferrer" className="pub-footer__social" aria-label="TikTok">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.7a8.19 8.19 0 004.76 1.52V6.77a4.84 4.84 0 01-1-.08z"/></svg>
-                </a>
-                <a href="#" className="pub-footer__social" aria-label="YouTube">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.54 3.5 12 3.5 12 3.5s-7.54 0-9.38.55A3.02 3.02 0 00.5 6.19 31.67 31.67 0 000 12a31.67 31.67 0 00.5 5.81 3.02 3.02 0 002.12 2.14c1.84.55 9.38.55 9.38.55s7.54 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.67 31.67 0 0024 12a31.67 31.67 0 00-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>
-                </a>
-                <a href="#" className="pub-footer__social" aria-label="X">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
               </div>
             </div>
