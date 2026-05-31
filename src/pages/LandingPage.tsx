@@ -53,6 +53,49 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const logoEl = document.getElementById("ff-logo") as HTMLImageElement | null;
+    if (!logoEl) return;
+    const processLogo = () => {
+      const src = new Image();
+      src.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = src.width; c.height = src.height;
+        const ctx = c.getContext("2d")!;
+        const grad = ctx.createLinearGradient(0, 0, c.width, c.height);
+        grad.addColorStop(0, "#8b5cf6");
+        grad.addColorStop(0.33, "#d6246e");
+        grad.addColorStop(0.66, "#e8652b");
+        grad.addColorStop(1, "#f2a922");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, c.width, c.height);
+        const gradData = ctx.getImageData(0, 0, c.width, c.height);
+        ctx.drawImage(src, 0, 0);
+        const imgData = ctx.getImageData(0, 0, c.width, c.height);
+        const cx = c.width / 2, cy = c.height / 2, radius = c.width * 0.46;
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          const px = (i / 4) % c.width, py = Math.floor((i / 4) / c.width);
+          const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+          const r = imgData.data[i], g = imgData.data[i+1], b = imgData.data[i+2];
+          const isGreen = g > 80 && g > r * 1.05 && g > b * 1.05;
+          if (dist <= radius && isGreen) {
+            imgData.data[i] = gradData.data[i];
+            imgData.data[i+1] = gradData.data[i+1];
+            imgData.data[i+2] = gradData.data[i+2];
+            imgData.data[i+3] = 255;
+          } else {
+            imgData.data[i+3] = 0;
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        logoEl.src = c.toDataURL();
+      };
+      src.src = "/images/fesser-logo.png";
+    };
+    if (logoEl.complete) processLogo();
+    else logoEl.addEventListener("load", processLogo);
+  }, []);
+
   return (
     <>
       {/* NAV */}
@@ -212,7 +255,7 @@ export default function LandingPage() {
       <section className="about" id="about">
         <div className="container">
           <div className="about__grid">
-            <div>
+            <div className="about__text">
               <p className="section-label">The Movement</p>
               <h2 className="section-title section-title--left" style={{ marginBottom: 24 }}>More Than Music</h2>
               <p className="about__description">
@@ -220,11 +263,8 @@ export default function LandingPage() {
                 Inc. — a registered 501(c)(3) non-profit operating two orphanages in the
                 Democratic Republic of the Congo. What started as a small group of friends
                 trying to do their part has grown into something far bigger and more beautiful
-                than we ever imagined. Click the link below to learn more!
+                than we ever imagined.
               </p>
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 16, marginBottom: 24 }}>
-                <a href="https://fesserandfriends.org" target="_blank" rel="noopener noreferrer" className="btn btn--outline">Fesser and Friends</a>
-              </div>
               <div className="about__stats">
                 <div className="about__stat">
                   <span className="about__stat-number gradient-text">200k+</span>
@@ -243,9 +283,42 @@ export default function LandingPage() {
                   <span className="about__stat-label">Centers Operating</span>
                 </div>
               </div>
+              <div className="about__ripple-container">
+                <a href="https://www.fesserandfriends.org" target="_blank" rel="noopener noreferrer"><img src="/images/fesser-logo.png" alt="Fesser &amp; Friends" className="about__ripple" id="ff-logo" /></a>
+                <p className="about__ff-caption">click to learn more</p>
+              </div>
             </div>
-            <div className="about__ripple-container">
-              <img src="/icons/2-ripple-mono.svg" alt="Ripple" className="about__ripple" style={{ filter: "hue-rotate(-20deg) brightness(1.3)" }} />
+
+            <div className="count-in">
+              <div className="count-in__header">
+                <h3 className="count-in__title">Join the Movement</h3>
+                <span className="count-in__subtitle">Drop your info and we'll be in touch.</span>
+              </div>
+              <form className="count-in__form" action="https://formspree.io/f/mredqgpp" method="POST" onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const btn = form.querySelector("button[type=submit]") as HTMLButtonElement;
+                btn.textContent = "Sending...";
+                btn.disabled = true;
+                fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } })
+                  .then(() => { form.innerHTML = '<div style="text-align:center;padding:40px 0"><h3 style="font-family:var(--font-heading);font-size:1.3rem;margin-bottom:8px">You\'re In!</h3><p style="color:var(--color-mist);font-size:0.9rem">We\'ll be in touch soon. Welcome to the movement.</p></div>'; })
+                  .catch(() => { btn.textContent = "Count Me In"; btn.disabled = false; });
+              }}>
+                <div><label className="count-in__label">Name</label><input className="count-in__input" type="text" name="name" placeholder="Your name..." required /></div>
+                <div><label className="count-in__label">Email</label><input className="count-in__input" type="email" name="email" placeholder="your@email.com..." required /></div>
+                <div className="count-in__row">
+                  <div><label className="count-in__label">Phone <span className="opt">(Optional)</span></label><input className="count-in__input" type="tel" name="phone" placeholder="Phone number..." /></div>
+                  <div><label className="count-in__label">Instagram <span className="opt">(Optional)</span></label><input className="count-in__input" type="text" name="instagram" placeholder="@handle..." /></div>
+                </div>
+                <div><label className="count-in__label">Best Way to Reach You</label>
+                  <select className="count-in__select" name="preferred_contact"><option value="">Select one...</option><option value="Email">Email</option><option value="Phone">Phone</option><option value="Instagram DM">Instagram DM</option></select>
+                </div>
+                <div className="count-in__comments-wrap"><label className="count-in__label">Comments <span className="opt">(Optional)</span></label>
+                  <textarea className="count-in__textarea" name="comments" placeholder="Anything you want to say..." rows={2}></textarea>
+                </div>
+                <input type="hidden" name="_subject" value="New BtR Landing Page Submission" />
+                <button type="submit" className="btn btn--gradient" style={{ width: "100%", marginTop: 4 }}>Count Me In</button>
+              </form>
             </div>
           </div>
         </div>
