@@ -44,7 +44,7 @@ function useCountdown(target: Date) {
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const eventDate = new Date("2026-05-02T20:00:00-07:00");
+  const eventDate = new Date("2026-09-05T20:00:00-07:00");
   const cd = useCountdown(eventDate);
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function LandingPage() {
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
           <div className="pub-nav__left">
-            <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
+            <span className="btn btn--gradient btn--sm btn--muted pub-nav__tickets-mobile" aria-disabled="true">Get Tickets</span>
           </div>
           <a href="#" className="pub-nav__logo">
             <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
@@ -114,7 +114,7 @@ export default function LandingPage() {
             <li><a href="#gallery" className="pub-nav__link">Gallery</a></li>
           </ul>
           <div className="pub-nav__right">
-            <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
+            <span className="btn btn--gradient btn--sm btn--muted pub-nav__tickets-desktop" aria-disabled="true">Get Tickets</span>
             <Link to="/login" className="pub-nav__team">Team</Link>
             <button
               className="pub-nav__hamburger"
@@ -133,7 +133,7 @@ export default function LandingPage() {
           <a href="#tickets" onClick={() => setMobileMenuOpen(false)}>Events</a>
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
           <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
-          <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
+          <span className="btn btn--gradient btn--muted" aria-disabled="true">Get Tickets</span>
           <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>
         </div>
       )}
@@ -163,11 +163,10 @@ export default function LandingPage() {
         <div className="container">
           <div className="countdown-section__inner">
             <div>
-              <h2 className="countdown-section__title">BtR San Diego</h2>
+              <h2 className="countdown-section__title">BtR Hollywood</h2>
               <div className="countdown-section__details">
-                <span className="countdown-section__detail">May 2, 2026</span>
-                <span className="countdown-section__detail">Trilogy Sanctuary</span>
-                <span className="countdown-section__detail">La Jolla, CA</span>
+                <span className="countdown-section__detail">September 5, 2026</span>
+                <span className="countdown-section__detail">Los Angeles, CA</span>
               </div>
             </div>
             <div className="countdown">
@@ -195,13 +194,13 @@ export default function LandingPage() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div className="event-card" style={{ maxWidth: 420, width: "100%" }}>
               <div className="event-card__image">
-                <img src="/images/venue/Trilogy_Sanctuary.jpg" alt="BtR San Diego" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="event-card__status event-card__status--onsale">On Sale</span>
+                <img src="/images/venue/BtR_Hollywood.jpg" alt="BtR Hollywood" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className="event-card__status event-card__status--soon">Coming Soon</span>
               </div>
               <div className="event-card__body">
-                <h3 className="event-card__name">BtR San Diego</h3>
-                <p className="event-card__date">May 2, 2026 — Trilogy Sanctuary</p>
-                <a href="https://bit.ly/BtRSanDiego" target="_blank" rel="noopener noreferrer" className="btn btn--sm btn--gradient" style={{ width: "100%" }}>Get Tickets</a>
+                <h3 className="event-card__name">BtR Hollywood</h3>
+                <p className="event-card__date">September 5, 2026 — Los Angeles, CA</p>
+                <button type="button" className="btn btn--sm btn--gradient btn--muted" style={{ width: "100%" }} disabled>Get Tickets</button>
               </div>
             </div>
           </div>
@@ -212,38 +211,22 @@ export default function LandingPage() {
       <section className="lineup" id="lineup">
         <div className="container">
           <p className="section-label" style={{ textAlign: "center" }}>The Lineup</p>
-          <h2 className="section-title">San Diego Headliners</h2>
+          <h2 className="section-title">Hollywood Headliners</h2>
           <div className="lineup__grid">
             <div className="artist-card">
               <div className="artist-card__photo">
-                <img src="/images/artists/Chmura.jpg" alt="Chmura" />
+                <img src="/images/artists/SoDown.jpg" alt="SoDown" style={{ objectPosition: "50% 42%" }} />
               </div>
               <div className="artist-card__info">
-                <div className="artist-card__name">CHMURA</div>
+                <div className="artist-card__name">SODOWN</div>
               </div>
             </div>
             <div className="artist-card">
               <div className="artist-card__photo">
-                <img src="/images/artists/Saturna.jpg" alt="Saturna" />
+                <img src="/images/artists/Manic_Focus.jpg" alt="Manic Focus" style={{ objectPosition: "50% 18%" }} />
               </div>
               <div className="artist-card__info">
-                <div className="artist-card__name">SATURNA</div>
-              </div>
-            </div>
-            <div className="artist-card">
-              <div className="artist-card__photo">
-                <img src="/images/artists/Kaipora.jpg" alt="Kaipora" />
-              </div>
-              <div className="artist-card__info">
-                <div className="artist-card__name">KAIPORA</div>
-              </div>
-            </div>
-            <div className="artist-card">
-              <div className="artist-card__photo">
-                <img src="/images/artists/Cam_Steen.jpg" alt="Cam Steen" />
-              </div>
-              <div className="artist-card__info">
-                <div className="artist-card__name">CAM STEEN</div>
+                <div className="artist-card__name">MANIC FOCUS</div>
               </div>
             </div>
           </div>
@@ -331,20 +314,24 @@ export default function LandingPage() {
           <h2 className="section-title">Gallery</h2>
           <div className="gallery__grid">
             <div className="gallery__item">
-              <img src="/images/gallery/IMG_9559.jpg" alt="Seattle 2025" />
-              <div className="gallery__overlay"><span>Seattle 2025</span></div>
+              <img src="/images/gallery/sd26-fire.jpg" alt="San Diego 2026" />
+              <div className="gallery__overlay"><span>San Diego 2026</span></div>
             </div>
             <div className="gallery__item gallery__item--wide">
-              <img src="/images/gallery/IMG_9560.jpg" alt="Seattle 2025" />
-              <div className="gallery__overlay"><span>Seattle 2025</span></div>
+              <img src="/images/gallery/sd26-decks.jpg" alt="San Diego 2026" />
+              <div className="gallery__overlay"><span>San Diego 2026</span></div>
             </div>
             <div className="gallery__item gallery__item--wide">
-              <img src="/images/gallery/IMG_9561.jpg" alt="Seattle 2025" />
-              <div className="gallery__overlay"><span>Seattle 2025</span></div>
+              <img src="/images/gallery/sd26-dome.jpg" alt="San Diego 2026" style={{ objectPosition: "50% 72%" }} />
+              <div className="gallery__overlay"><span>San Diego 2026</span></div>
             </div>
             <div className="gallery__item">
-              <img src="/images/gallery/IMG_9562.jpg" alt="Seattle 2025" />
-              <div className="gallery__overlay"><span>Seattle 2025</span></div>
+              <img src="/images/gallery/sd26-rooftop.jpg" alt="San Diego 2026" />
+              <div className="gallery__overlay"><span>San Diego 2026</span></div>
+            </div>
+            <div className="gallery__item gallery__item--pano">
+              <img src="/images/gallery/sd26-venue.jpg" alt="San Diego 2026" />
+              <div className="gallery__overlay"><span>San Diego 2026</span></div>
             </div>
           </div>
         </div>

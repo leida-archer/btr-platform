@@ -1,5 +1,65 @@
 # BtR Platform — Changelog
 
+## 2026-08-04 — Hollywood Event Cycle: Gallery, Countdown, Headliners
+
+### Summary
+
+Rolled the landing page over from the (past) San Diego event to BtR Hollywood: new SD post-event gallery, Hollywood countdown/event card with Coming Soon state, two confirmed headliners, and all ticket CTAs muted until the new ticket link exists.
+
+### Changes Made
+
+| File | Change |
+|------|--------|
+| `src/pages/LandingPage.tsx` | Gallery: replaced 4 Seattle photos with 5 SD '26 photos (`sd26-*.jpg`), added full-width panorama slot, captions → "San Diego 2026" |
+| `src/pages/LandingPage.tsx` | Countdown target → `2026-09-05T20:00:00-07:00`; title/details → BtR Hollywood, September 5, 2026, Los Angeles, CA |
+| `src/pages/LandingPage.tsx` | Event card: `BtR_Hollywood.jpg` thumbnail, badge → Coming Soon, ticket button disabled |
+| `src/pages/LandingPage.tsx` | Lineup: "Hollywood Headliners", 2 cards — SoDown (Thunderdome shot), Manic Focus (promo portrait) |
+| `src/pages/LandingPage.tsx` | All Get Tickets CTAs (desktop/mobile nav, mobile menu, event card) → muted inactive spans; old SD bit.ly links removed |
+| `src/index.css` | Added `.gallery__item--pano` (8/3, responsive 2/1 and 16/9) and `.btn--muted`; removed one-off `.btn--disabled` |
+| `public/images/` | Added `gallery/sd26-*.jpg` (5), `venue/BtR_Hollywood.jpg`, `artists/SoDown.jpg`, `artists/Manic_Focus.jpg` — all web-resized with sips (no upscaling needed; source photos 4–7K) |
+| `NOTES.md` | New ideas/notes file (Past Events strip idea parked; ticket-link reactivation checklist) |
+| `.gitignore` / `dist/` | Untracked the stale committed `dist/` build (already gitignored; Vercel builds from source); ignored `.reports/` |
+
+### Notes
+
+- Old Seattle gallery and SD artist images remain in `public/images/` untouched (unreferenced) — candidates for cleanup.
+- Reactivating tickets: swap `btn--muted` spans back to anchors with the new URL; card badge → `--onsale`.
+
+---
+
+## 2026-05-31 — About Section: Count In Form + F&F Logo
+
+### Summary
+
+Replaced the "Fesser and Friends" outline button and ripple graphic in the About section with a "Join the Movement" contact signup card and a processed F&F logo.
+
+### Changes Made
+
+| File | Change |
+|------|--------|
+| `src/pages/LandingPage.tsx` | Replaced About section right column (ripple SVG + F&F button) with Count In form card (Formspree-powered: name, email, phone, Instagram, preferred contact, comments) |
+| `src/pages/LandingPage.tsx` | Added F&F logo below stats on left column as clickable link to fesserandfriends.org with "click to learn more" caption |
+| `src/pages/LandingPage.tsx` | Added `useEffect` canvas processing: converts F&F logo green circle to psychedelic gradient, makes white areas transparent |
+| `src/index.css` | Added `.count-in` card styles (gradient top border, form fields, select dropdown, textarea, responsive breakpoints) |
+| `src/index.css` | Updated `.about` layout to `align-items: stretch` with flexbox text column and form card |
+| `src/index.css` | Added `.about__ff-caption` italic caption style, `.about__ripple` hover scale + breathing animation |
+| `public/images/fesser-logo.png` | Added Fesser & Friends logo (green circle, white tree/schoolhouse silhouette) |
+
+### Design Decisions
+
+- Card header: "Join the Movement" (ties into "The Movement" section label)
+- Submit button: "Count Me In"
+- Form submits to Formspree (`mredqgpp`) — same endpoint as the original sample landing page
+- F&F logo processed at runtime via canvas: green → psychedelic gradient, white → transparent cutout
+- Comments textarea sized to fill remaining card space; button spaced with 20px bottom padding
+- Responsive: form fields stack to single column on mobile, F&F logo scales down
+
+### Commit
+
+- `ba7b7eb` — pushed to `main`, auto-deployed to Vercel
+
+---
+
 ## 2026-03-10 — Landing Page Refresh
 
 ### Changes Made

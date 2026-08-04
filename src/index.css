@@ -103,6 +103,8 @@
 .btn--outline { border: 1.5px solid var(--color-mist); color: var(--color-cream); background: transparent; }
 .btn--outline:hover { border-color: var(--color-cream); background: rgba(255,248,240,0.06); transform: translateY(-2px); }
 .btn--sm { padding: 10px 20px; font-size: 0.8rem; }
+.btn--muted { opacity: 0.4; filter: saturate(0.4); pointer-events: none; cursor: default; border: none; }
+.btn--muted:hover { transform: none; box-shadow: none; }
 
 /* ========================================
    LANDING: Nav
@@ -235,6 +237,7 @@
 .gallery__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .gallery__item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s var(--ease); }
 .gallery__item--wide { grid-column: span 2; aspect-ratio: 2/1; }
+.gallery__item--pano { grid-column: span 3; aspect-ratio: 8/3; }
 .gallery__item:hover { transform: scale(1.02); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
 .gallery__item img { width: 100%; height: 100%; object-fit: cover; image-rendering: -webkit-optimize-contrast; filter: contrast(1.05) saturate(1.1); -webkit-filter: contrast(1.05) saturate(1.1); }
 .gallery__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(26,16,24,0.85) 100%); display: flex; align-items: flex-end; padding: 20px; opacity: 0; transition: opacity 0.3s var(--ease); }
@@ -303,6 +306,7 @@
   .count-in__row { grid-template-columns: 1fr; }
   .gallery__grid { grid-template-columns: 1fr 1fr; }
   .gallery__item--wide { grid-column: span 2; }
+  .gallery__item--pano { grid-column: span 2; aspect-ratio: 2/1; }
   .newsletter__inner { padding: 40px 24px; text-align: center; }
   .newsletter__form { min-width: unset; width: 100%; }
   .newsletter__input-wrap { flex-direction: column; }
@@ -340,6 +344,7 @@
   .gallery { padding: 60px 0; }
   .gallery__grid { grid-template-columns: 1fr; gap: 12px; }
   .gallery__item--wide { grid-column: span 1; aspect-ratio: 16/9; }
+  .gallery__item--pano { grid-column: span 1; aspect-ratio: 16/9; }
   .newsletter { padding: 60px 0; }
   .newsletter__title { font-size: 1.5rem; }
   .pub-footer { padding: 48px 0 24px; }
