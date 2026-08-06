@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
+const TICKET_URL = "https://www.eventbrite.com/e/beyond-the-rhythm-hollywood-tickets-1996656713980?aff=oddtdtcreator";
+
 function Particles() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function LandingPage() {
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
           <div className="pub-nav__left">
-            <span className="btn btn--gradient btn--sm btn--muted pub-nav__tickets-mobile" aria-disabled="true">Get Tickets</span>
+            <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
           </div>
           <a href="#" className="pub-nav__logo">
             <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
@@ -114,7 +116,7 @@ export default function LandingPage() {
             <li><a href="#gallery" className="pub-nav__link">Gallery</a></li>
           </ul>
           <div className="pub-nav__right">
-            <span className="btn btn--gradient btn--sm btn--muted pub-nav__tickets-desktop" aria-disabled="true">Get Tickets</span>
+            <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
             <Link to="/login" className="pub-nav__team">Team</Link>
             <button
               className="pub-nav__hamburger"
@@ -133,7 +135,7 @@ export default function LandingPage() {
           <a href="#tickets" onClick={() => setMobileMenuOpen(false)}>Events</a>
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
           <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
-          <span className="btn btn--gradient btn--muted" aria-disabled="true">Get Tickets</span>
+          <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
           <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>
         </div>
       )}
@@ -194,13 +196,13 @@ export default function LandingPage() {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div className="event-card" style={{ maxWidth: 420, width: "100%" }}>
               <div className="event-card__image">
-                <img src="/images/venue/BtR_Hollywood.jpg" alt="BtR Hollywood" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="event-card__status event-card__status--soon">Coming Soon</span>
+                <img src="/images/venue/BtR_Hollywood_flyer.webp" alt="BtR Hollywood — SoDown and Manic Focus, September 5, 2026" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <span className="event-card__status event-card__status--onsale">On Sale</span>
               </div>
               <div className="event-card__body">
                 <h3 className="event-card__name">BtR Hollywood</h3>
                 <p className="event-card__date">September 5, 2026 — Los Angeles, CA</p>
-                <button type="button" className="btn btn--sm btn--gradient btn--muted" style={{ width: "100%" }} disabled>Get Tickets</button>
+                <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--sm btn--gradient" style={{ width: "100%" }}>Get Tickets</a>
               </div>
             </div>
           </div>

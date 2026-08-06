@@ -177,7 +177,7 @@
 .event-card__status--onsale { background: rgba(214,36,110,0.9); color: #fff; }
 .event-card__status--soon { background: rgba(139,92,246,0.9); color: #fff; }
 .event-card__body { padding: 20px; }
-.event-card__name { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+.event-card__name { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
 .event-card__date { font-size: 0.85rem; color: var(--color-mist); margin-bottom: 16px; }
 
 /* ========================================

@@ -6,5 +6,4 @@
 
 ## Pending
 
-- Hollywood ticket link: all "Get Tickets" buttons are muted/inactive until the new ticket URL arrives (old San Diego bit.ly removed). Re-activate by swapping `btn--muted` spans back to anchors with the new URL.
 - Hollywood venue TBA — event card/countdown currently show "Los Angeles, CA" only.
