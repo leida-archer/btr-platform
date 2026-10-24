@@ -2,7 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
-const TICKET_URL = "https://www.eventbrite.com/e/beyond-the-rhythm-hollywood-tickets-1996656713980?aff=oddtdtcreator";
+// ---- Current event -------------------------------------------------------
+// Single source of truth. Every date, venue, badge and CTA on the page reads
+// from here, so announcing the next show is one edit instead of eleven
+// scattered strings. Nulls mean "not announced yet" and the UI adapts:
+//   date: null       -> countdown is replaced by a stay-tuned line
+//   ticketUrl: null  -> CTAs go muted, nav ticket button hides
+//   lineup: []       -> the lineup section is omitted entirely
+const EVENT = {
+  name: "Next Event",
+  date: null as Date | null,
+  dateLabel: "Date to be announced",
+  city: "Venue to be announced",
+  ticketUrl: null as string | null,
+  flyer: null as string | null,
+  lineup: [] as { name: string; photo: string; objectPosition?: string }[],
+};
+
+const TICKET_URL = EVENT.ticketUrl;
 
 // The team portal is not finished, so it is hidden from the public site.
 // Flip this to true to restore the nav link and the mobile-menu entry.
@@ -35,14 +52,14 @@ function Particles() {
   return <div className="hero__particles" ref={ref} />;
 }
 
-function useCountdown(target: Date) {
+function useCountdown(target: Date | null) {
   const [now, setNow] = useState(Date.now());
-  const targetMs = target.getTime();
+  const targetMs = target ? target.getTime() : null;
   useEffect(() => {
     // Each tick re-renders the whole landing page. Once the target has passed
     // the displayed value is frozen at zero, so ticking on would cost a frame
     // every second to redraw identical output. Stop at the target instead.
-    if (targetMs <= Date.now()) return;
+    if (targetMs === null || targetMs <= Date.now()) return;
     const id = setInterval(() => {
       const t = Date.now();
       setNow(t);
@@ -50,7 +67,7 @@ function useCountdown(target: Date) {
     }, 1000);
     return () => clearInterval(id);
   }, [targetMs]);
-  const diff = Math.max(0, targetMs - now);
+  const diff = targetMs === null ? 0 : Math.max(0, targetMs - now);
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
@@ -61,8 +78,7 @@ function useCountdown(target: Date) {
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const eventDate = new Date("2026-09-05T20:00:00-07:00");
-  const cd = useCountdown(eventDate);
+  const cd = useCountdown(EVENT.date);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -119,7 +135,7 @@ export default function LandingPage() {
       <nav className={`pub-nav ${scrolled ? "pub-nav--scrolled" : ""}`}>
         <div className="pub-nav__inner">
           <div className="pub-nav__left">
-            <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>
+            {TICKET_URL && <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-mobile">Get Tickets</a>}
           </div>
           <a href="#" className="pub-nav__logo">
             <img src="/logos/logo-on-dark.svg" alt="Beyond the Rhythm" className="pub-nav__logo-img pub-nav__logo-img--wide" />
@@ -131,7 +147,7 @@ export default function LandingPage() {
             <li><a href="#gallery" className="pub-nav__link">Gallery</a></li>
           </ul>
           <div className="pub-nav__right">
-            <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
+            {TICKET_URL && <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>}
             {SHOW_TEAM_PORTAL && <Link to="/login" className="pub-nav__team">Team</Link>}
             <button
               className="pub-nav__hamburger"
@@ -150,7 +166,7 @@ export default function LandingPage() {
           <a href="#tickets" onClick={() => setMobileMenuOpen(false)}>Events</a>
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
           <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
-          <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
+          {TICKET_URL && <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>}
           {SHOW_TEAM_PORTAL && <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>}
         </div>
       )}
@@ -180,12 +196,13 @@ export default function LandingPage() {
         <div className="container">
           <div className="countdown-section__inner">
             <div>
-              <h2 className="countdown-section__title">BtR Hollywood</h2>
+              <h2 className="countdown-section__title">{EVENT.name}</h2>
               <div className="countdown-section__details">
-                <span className="countdown-section__detail">September 5, 2026</span>
-                <span className="countdown-section__detail">Los Angeles, CA</span>
+                <span className="countdown-section__detail">{EVENT.dateLabel}</span>
+                <span className="countdown-section__detail">{EVENT.city}</span>
               </div>
             </div>
+            {EVENT.date ? (
             <div className="countdown">
               <div className="countdown__block">
                 <span className="countdown__number gradient-text">{cd.d}</span>
@@ -207,49 +224,61 @@ export default function LandingPage() {
                 <span className="countdown__label">Sec</span>
               </div>
             </div>
+            ) : (
+              <p className="countdown-section__standby">Dates drop soon — join the movement below and you&rsquo;ll hear first.</p>
+            )}
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <div className="event-card" style={{ maxWidth: 420, width: "100%" }}>
               <div className="event-card__image">
-                <img src="/images/venue/BtR_Hollywood_flyer.webp" alt="BtR Hollywood — SoDown and Manic Focus, September 5, 2026" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <span className="event-card__status event-card__status--onsale">On Sale</span>
+                {EVENT.flyer ? (
+                  <img src={EVENT.flyer} alt={`${EVENT.name} — ${EVENT.dateLabel}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <div className="event-card__image-placeholder">
+                    {/* same mark the Team portal login page uses */}
+                    <img src="/logos/2e-ripple-on-dark.svg" alt="" aria-hidden="true" />
+                  </div>
+                )}
+                <span className={`event-card__status event-card__status--${TICKET_URL ? "onsale" : "soon"}`}>
+                  {TICKET_URL ? "On Sale" : "Coming Soon"}
+                </span>
               </div>
               <div className="event-card__body">
-                <h3 className="event-card__name">BtR Hollywood</h3>
-                <p className="event-card__date">September 5, 2026 — Los Angeles, CA</p>
-                <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--sm btn--gradient" style={{ width: "100%" }}>Get Tickets</a>
+                <h3 className="event-card__name">{EVENT.name}</h3>
+                <p className="event-card__date">{EVENT.dateLabel} — {EVENT.city}</p>
+                {TICKET_URL ? (
+                  <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--sm btn--gradient" style={{ width: "100%" }}>Get Tickets</a>
+                ) : (
+                  <span className="btn btn--sm btn--gradient btn--muted" style={{ width: "100%" }} aria-disabled="true">Tickets Not Yet On Sale</span>
+                )}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* LINEUP */}
+      {/* LINEUP — omitted until at least one artist is confirmed */}
+      {EVENT.lineup.length > 0 && (
       <section className="lineup" id="lineup">
         <div className="container">
           <p className="section-label" style={{ textAlign: "center" }}>The Lineup</p>
-          <h2 className="section-title">Hollywood Headliners</h2>
+          <h2 className="section-title">{EVENT.name} Headliners</h2>
           <div className="lineup__grid">
-            <div className="artist-card">
-              <div className="artist-card__photo">
-                <img src="/images/artists/SoDown.jpg" alt="SoDown" style={{ objectPosition: "50% 42%" }} />
+            {EVENT.lineup.map((a) => (
+              <div className="artist-card" key={a.name}>
+                <div className="artist-card__photo">
+                  <img src={a.photo} alt={a.name} style={{ objectPosition: a.objectPosition ?? "50% 50%" }} />
+                </div>
+                <div className="artist-card__info">
+                  <div className="artist-card__name">{a.name.toUpperCase()}</div>
+                </div>
               </div>
-              <div className="artist-card__info">
-                <div className="artist-card__name">SODOWN</div>
-              </div>
-            </div>
-            <div className="artist-card">
-              <div className="artist-card__photo">
-                <img src="/images/artists/Manic_Focus.jpg" alt="Manic Focus" style={{ objectPosition: "50% 18%" }} />
-              </div>
-              <div className="artist-card__info">
-                <div className="artist-card__name">MANIC FOCUS</div>
-              </div>
-            </div>
+            ))}
           </div>
           <p className="lineup__more">+ more to be announced</p>
         </div>
       </section>
+      )}
 
       {/* ABOUT */}
       <section className="about" id="about">

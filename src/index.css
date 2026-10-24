@@ -153,6 +153,7 @@
 .countdown__block { text-align: center; }
 .countdown__number { display: block; font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1; }
 .countdown__label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-slate); margin-top: 4px; }
+.countdown-section__standby { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 300; color: var(--color-mist); font-style: italic; max-width: 340px; line-height: 1.6; }
 .countdown__sep { font-family: var(--font-heading); font-size: 2rem; font-weight: 300; color: var(--color-slate); margin-top: -16px; }
 
 .ticket-tiers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 700px; margin: 0 auto; }
@@ -174,7 +175,18 @@
 .event-card { background: var(--color-charcoal); border: 1px solid rgba(184,169,194,0.06); border-radius: 16px; overflow: hidden; transition: all 0.3s var(--ease); }
 .event-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.5); border-color: rgba(214,36,110,0.15); }
 .event-card__image { position: relative; aspect-ratio: 4/3; overflow: hidden; }
-.event-card__image-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.event-card__image-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 44%, rgba(242,169,34,0.20), transparent 72%),
+    radial-gradient(ellipse 95% 85% at 14% 8%, rgba(139,92,246,0.30), transparent 70%),
+    radial-gradient(ellipse 85% 75% at 92% 96%, rgba(232,101,43,0.22), transparent 70%),
+    linear-gradient(140deg, #35215a 0%, #4a1b3c 42%, #53271d 78%, #5a3a16 100%); }
+/* Centred on the handprint itself, not on the file's bounding box. The hand
+   runs from the fingertips (y 0) to the base of the palm (y 464) in a 500-unit
+   mark, so its middle is y 232 — 3.6% above the box centre. Shifting the mark
+   down by that much puts the hand, which is the shape the eye traces, on the
+   card's axis. The letters sit inside the hand and follow it. */
+.event-card__image-placeholder img { height: 80%; width: auto; transform: translateY(3.6%); }
 .event-card__status { position: absolute; top: 12px; right: 12px; font-family: var(--font-heading); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 6px; }
 .event-card__status--onsale { background: rgba(214,36,110,0.9); color: #fff; }
 .event-card__status--soon { background: rgba(139,92,246,0.9); color: #fff; }
