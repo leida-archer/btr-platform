@@ -37,11 +37,20 @@ function Particles() {
 
 function useCountdown(target: Date) {
   const [now, setNow] = useState(Date.now());
+  const targetMs = target.getTime();
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    // Each tick re-renders the whole landing page. Once the target has passed
+    // the displayed value is frozen at zero, so ticking on would cost a frame
+    // every second to redraw identical output. Stop at the target instead.
+    if (targetMs <= Date.now()) return;
+    const id = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      if (targetMs - t <= 0) clearInterval(id);
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
-  const diff = Math.max(0, target.getTime() - now);
+  }, [targetMs]);
+  const diff = Math.max(0, targetMs - now);
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
@@ -275,7 +284,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="about__ripple-container">
-                <a href="https://www.fesserandfriends.org" target="_blank" rel="noopener noreferrer"><img src="/images/fesser-logo.png" alt="Fesser &amp; Friends" className="about__ripple" id="ff-logo" /></a>
+                <a href="https://www.fesserandfriends.org" target="_blank" rel="noopener noreferrer"><img src="/images/fesser-logo.png" alt="Fesser &amp; Friends" className="about__ripple" id="ff-logo" draggable={false} /></a>
                 <p className="about__ff-caption">click to learn more</p>
               </div>
             </div>

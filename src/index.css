@@ -210,8 +210,9 @@
 .about__stat { text-align: center; }
 .about__stat-number { display: block; font-family: var(--font-heading); font-size: 2rem; font-weight: 700; }
 .about__stat-label { font-size: 0.8rem; color: var(--color-slate); text-transform: uppercase; letter-spacing: 0.08em; }
+.about__ripple-container a { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .about__ripple-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; margin-top: 28px; }
-.about__ripple { width: 100%; max-width: 229px; cursor: pointer; opacity: 0.7; filter: brightness(0.8) saturate(0.8); transition: transform 0.2s var(--ease-settle), opacity 0.16s var(--ease-settle), filter 0.16s var(--ease-settle); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; }
+.about__ripple { width: 100%; max-width: 229px; cursor: pointer; opacity: 0.7; filter: brightness(0.8) saturate(0.8); transition: transform 0.2s var(--ease-settle), opacity 0.16s var(--ease-settle), filter 0.16s var(--ease-settle); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
 /* Hover is for real pointers only. On iOS, :hover waits for tap recognition,
    so a finger would otherwise see nothing until after the tap resolved. */
 @media (hover: hover) and (pointer: fine) {
