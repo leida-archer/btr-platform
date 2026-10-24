@@ -4,6 +4,12 @@ import { Menu, X } from "lucide-react";
 
 const TICKET_URL = "https://www.eventbrite.com/e/beyond-the-rhythm-hollywood-tickets-1996656713980?aff=oddtdtcreator";
 
+// The team portal is not finished, so it is hidden from the public site.
+// Flip this to true to restore the nav link and the mobile-menu entry.
+// Nothing behind it is affected: the /login route, the auth guard and the
+// whole admin area still work, and /login is still reachable directly.
+const SHOW_TEAM_PORTAL = false;
+
 function Particles() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -117,7 +123,7 @@ export default function LandingPage() {
           </ul>
           <div className="pub-nav__right">
             <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient btn--sm pub-nav__tickets-desktop">Get Tickets</a>
-            <Link to="/login" className="pub-nav__team">Team</Link>
+            {SHOW_TEAM_PORTAL && <Link to="/login" className="pub-nav__team">Team</Link>}
             <button
               className="pub-nav__hamburger"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -136,7 +142,7 @@ export default function LandingPage() {
           <a href="#about" onClick={() => setMobileMenuOpen(false)}>About</a>
           <a href="#gallery" onClick={() => setMobileMenuOpen(false)}>Gallery</a>
           <a href={TICKET_URL} target="_blank" rel="noopener noreferrer" className="btn btn--gradient" onClick={() => setMobileMenuOpen(false)}>Get Tickets</a>
-          <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>
+          {SHOW_TEAM_PORTAL && <Link to="/login" className="btn btn--outline" onClick={() => setMobileMenuOpen(false)}>Team Login</Link>}
         </div>
       )}
 
